@@ -1,0 +1,2 @@
+Test_luaclass_gc 1 0.266911
+---

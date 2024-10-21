@@ -1,0 +1,22 @@
+Start testing: Oct 21 12:39 UTC
+----------------------------------------------------------
+1/1 Testing: Test_luaclass_gc
+1/1 Test: Test_luaclass_gc
+Command: "/home/yqm/Git/owner/bbtools/bbtools-cxxlua/build/bin/unit_test/Test_luaclass_gc"
+Directory: /home/yqm/Git/owner/bbtools/bbtools-cxxlua/build/unit_test
+"Test_luaclass_gc" start time: Oct 21 12:39 UTC
+Output:
+----------------------------------------------------------
+Running 1 test case...
+
+[1;32;49m*** No errors detected
+[0;39;49m
+<end of output>
+Test time =   0.27 sec
+----------------------------------------------------------
+Test Passed.
+"Test_luaclass_gc" end time: Oct 21 12:39 UTC
+"Test_luaclass_gc" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Oct 21 12:39 UTC
