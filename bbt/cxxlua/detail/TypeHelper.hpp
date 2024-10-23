@@ -51,6 +51,10 @@ template<>
 struct GetTypeEnum<bbt::cxxlua::detail::LuaRef>
 { static const LUATYPE type = LUATYPE::LUATYPE_STACKREF; };
 
+template<>
+struct GetTypeEnum<bbt::cxxlua::detail::Nil>
+{ static const LUATYPE type = LUATYPE::LUATYPE_NIL; };
+
 inline void DbgLuaStack(lua_State* l) {
     int type;
     fprintf(stderr, "-----------> top <-----------\n");

@@ -1,6 +1,6 @@
 #pragma once
-#include "LuaVM.hpp"
 #include <string>
+#include <bbt/cxxlua/detail/LuaVM.hpp>
 #include <bbt/base/file/FileHelper.hpp>
 
 namespace bbt::cxxlua::detail
@@ -40,4 +40,11 @@ std::optional<LuaErr> LuaVM::GetByKey4Table(LuaValue& value, const std::string& 
         return LuaErr("[LuaVM::GetByKey4Table] not a global table!", ERRCODE::Comm_Failed);
     return m_stack->GetByKey4Table(value, args...);
 }
+
+template<typename TValue>
+std::optional<LuaErr> LuaVM::SetGlobalValue(const std::string& value_name, const TValue& value)
+{
+    return m_stack->SetGlobalValue(value_name, value);
+}
+
 }

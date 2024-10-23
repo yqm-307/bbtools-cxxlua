@@ -1,4 +1,4 @@
-#include <bbt//cxxlua/CXXLua.hpp>
+#include <bbt/cxxlua/CXXLua.hpp>
 #include <queue>
 
 class MsgQueue:
@@ -68,7 +68,7 @@ int main()
     bbt::cxxlua::LuaVM vm;
 
     assert( vm.LoadLuaLibrary()         == std::nullopt);
-    assert( vm.LoadFile("example/lua/script/luatable/luatable.lua") == std::nullopt);
+    assert( vm.LoadFile("example/script/luatable/luatable.lua") == std::nullopt);
 
 
 

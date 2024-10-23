@@ -8,6 +8,15 @@ include_directories(
     ${PROJECT_SOURCE_DIR}
 )
 
+file(GLOB_RECURSE SRCS 
+    ${PROJECT_SOURCE_DIR}/bbt/*.cc
+)
+
+add_library(bbt_cxxlua STATIC ${SRCS})
+target_link_libraries(bbt_cxxlua
+    ybbt
+    lua
+)
 
 # 编译例程
 add_subdirectory(example)

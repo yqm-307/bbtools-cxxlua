@@ -32,6 +32,7 @@ class LuaVM;
 class LuaStack;
 class LuaRef;
 class LuaTable;
+struct Nil {};
 
 typedef std::function<void(std::unique_ptr<LuaState>&)> LuaFunction;
 /* cxx 调用 lua ，lua 返回值解析函数 */

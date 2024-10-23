@@ -1,4 +1,4 @@
-#include <bbt//cxxlua/CXXLua.hpp>
+#include <bbt/cxxlua/CXXLua.hpp>
 #include <optional>
 #include <iostream>
 #include <thread>
@@ -76,7 +76,7 @@ int main()
 
     assert( vm.RegistClass<Player>()    == std::nullopt);
     assert( vm.LoadLuaLibrary()         == std::nullopt);
-    assert( vm.LoadFile("example/lua/script/luaclass/luaclass.lua") == std::nullopt);
+    assert( vm.LoadFile("example/script/luaclass/luaclass.lua") == std::nullopt);
 
     auto err = vm.CallLuaFunction("Main", 0, nullptr);
     if (err != std::nullopt) {

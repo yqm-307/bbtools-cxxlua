@@ -1,4 +1,4 @@
-#include <bbt//cxxlua/CXXLua.hpp>
+#include <bbt/cxxlua/CXXLua.hpp>
 #include <optional>
 
 #define IF_NOT_EXIT(err, handle) \
@@ -19,7 +19,7 @@ int main()
     }
 
     /* lua虚拟机编译lua脚本，并装载到lua虚拟机的字节码块 */
-    auto err = lua.LoadFolder("./example/lua/script");
+    auto err = lua.LoadFolder("example/script");
     if(err != std::nullopt) {
         printf("%s\n", err.value().What().c_str());
         return -1;
