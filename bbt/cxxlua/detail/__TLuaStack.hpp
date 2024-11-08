@@ -29,9 +29,7 @@ std::optional<LuaErr> LuaStack::SetGlobalValue(const std::string& value_name, T 
     constexpr LUATYPE tp = GetTypeEnum<T>::type;
     static_assert(CheckIsCanTransfromToLuaType<T>());
     static_assert(( tp > LUATYPE::LUATYPE_NONE &&
-                    tp < LUATYPE::Other && 
-                    tp != LUATYPE::LUATYPE_NIL
-                    ),
+                    tp < LUATYPE::Other),
     "TValue LuaType is not a right type.");
 
     if(Push(value) != tp) {

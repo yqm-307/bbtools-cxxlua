@@ -17,13 +17,12 @@ namespace bbt::cxxlua
 {
 
 typedef bbt::cxxlua::detail::LuaVM LuaVM;
-typedef bbt::cxxlua::detail::LuaValue Value;
+typedef bbt::cxxlua::detail::LuaValue LuaValue;
 
 template<typename CXXClass>
 using LuaClass = bbt::cxxlua::detail::LuaClass<CXXClass>;
 
 typedef bbt::cxxlua::detail::LuaErr LuaErr;
-typedef bbt::cxxlua::detail::LUATYPE LUATYPE;
 typedef bbt::cxxlua::detail::LuaTable LuaTable;
 
 

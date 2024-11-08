@@ -13,7 +13,7 @@ std::optional<LuaErr> LuaVM::CallLuaFunction(
     const LuaParseReturnCallback&   parse_handler,
     Args                            ...args)
 {
-    auto [err, type] = m_stack->CheckGlobalValue<bbt::cxxlua::detail::LUATYPE::LUATYPE_FUNCTION>(funcname);
+    auto [err, type] = m_stack->CheckGlobalValue<bbt::cxxlua::LUATYPE::LUATYPE_FUNCTION>(funcname);
     if (err != std::nullopt)
         return err;
 

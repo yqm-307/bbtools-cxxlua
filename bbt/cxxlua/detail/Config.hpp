@@ -9,7 +9,8 @@
 #include <unordered_map>
 #include <string>
 
-#include "bbt/base/Attribute.hpp"
+#include <bbt/base/Attribute.hpp>
+#include <bbt/base/assert/Assert.hpp>
 
 // 对外 api flag
 #define CXXLUA_API BBTATTR_FUNC_RetVal
@@ -19,24 +20,15 @@
 #define LOW_LEVEL
 
 #define CXXLUAInvalidType(type) \
-    ( type <= bbt::cxxlua::detail::LUATYPE::LUATYPE_NONE  || \
-      type >= bbt::cxxlua::detail::LUATYPE::Other)
+    ( type <= bbt::cxxlua::LUATYPE::LUATYPE_NONE  || \
+      type >= bbt::cxxlua::LUATYPE::Other)
 
 
-namespace bbt::cxxlua::detail
+namespace bbt::cxxlua
 {
 
-class LuaErr;
-class LuaState;
-class LuaVM;
-class LuaStack;
-class LuaRef;
-class LuaTable;
 struct Nil {};
-
-typedef std::function<void(std::unique_ptr<LuaState>&)> LuaFunction;
-/* cxx 调用 lua ，lua 返回值解析函数 */
-typedef std::function<std::optional<LuaErr>(std::unique_ptr<LuaStack>&)> LuaParseReturnCallback;
+static Nil nil;
 
 enum LUATYPE
 {
@@ -55,4 +47,20 @@ enum LUATYPE
     Other,
 };
 
+namespace detail
+{
+
+class LuaErr;
+class LuaState;
+class LuaVM;
+class LuaStack;
+class LuaRef;
+class LuaTable;
+
+typedef std::function<void(std::unique_ptr<LuaState>&)> LuaFunction;
+/* cxx 调用 lua ，lua 返回值解析函数 */
+typedef std::function<std::optional<LuaErr>(std::unique_ptr<LuaStack>&)> LuaParseReturnCallback;
+
+
 } // namespace bbt::cxxlua::detail
+} // namespace bbt::cxxlua

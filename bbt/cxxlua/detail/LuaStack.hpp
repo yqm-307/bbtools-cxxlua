@@ -9,6 +9,16 @@
 namespace bbt::cxxlua::detail
 {
 
+/**
+ * LuaStack 操作封装Api
+ * 
+ * 操作大类：
+ *  1、其他
+ *  2、栈操作
+ *  3、表操作
+ *  4、函数操作
+ */
+
 class LuaStack:
     std::enable_shared_from_this<LuaStack>
 {
@@ -17,6 +27,7 @@ public:
     LuaStack(lua_State* l);
     ~LuaStack();
 
+#pragma region // 其他操作
     /**
      * @brief 执行lua脚本
      * 
@@ -40,6 +51,33 @@ public:
      * @return std::optional<LuaErr> 
      */
     std::optional<LuaErr> LoadFolder(const std::string& folder_path);
+
+    /* 创建一个lua table并压入栈顶 */
+    void NewLuaTable();
+
+    /* 返回0说明元表已经存在，否则返回1并压入栈顶 */
+    int NewMetatable(const std::string& name);
+
+    int SetMetatable(int idx);
+
+    /* 将idx处元素拷贝，并压入栈顶 */
+    std::optional<LuaErr> Copy2Top(const LuaRef& ref);
+
+    /* 获取栈顶元素的idx */
+    LuaRef GetTop();
+
+    /* 获取栈上idx处元素类型 */
+    LUATYPE GetType(const LuaRef& ref);
+
+    /* 获取栈长度 */
+    size_t Size();
+
+    /* 栈是否为空 */
+    bool Empty();
+
+    /* 判断ref是否合法 */
+    bool IsSafeRef(const LuaRef& ref);
+#pragma endregion
 
     /**
      * @brief 用 index_value 索引栈顶的表，并将索引到的
@@ -128,29 +166,16 @@ public:
     std::optional<LuaErr> Push2GlobalByName(const std::string& template_name, const std::string& global_name);
 
 
-    /* 创建一个lua table并压入栈顶 */
-    void NewLuaTable();
-    /* 返回0说明元表已经存在，否则返回1并压入栈顶 */
-    int NewMetatable(const std::string& name);
-    int SetMetatable(int idx);
-    /* 将idx处元素拷贝，并压入栈顶 */
-    std::optional<LuaErr> Copy2Top(const LuaRef& ref);
-    /* 获取栈顶元素的idx */
-    LuaRef GetTop();
-    /* 获取栈上idx处元素类型 */
-    LUATYPE GetType(const LuaRef& ref);
 
-    size_t Size();
-    bool Empty();
-    bool IsSafeRef(const LuaRef& ref);
 
-    void Pop(int n);
 /////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////    从栈中弹出基本类型    /////////////////////////////////
+//////////////////////////    栈操作                /////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
-public:
-    std::optional<LuaErr> Pop(LuaValue& value);
 
+#pragma region // 栈操作
+
+    std::optional<LuaErr> Pop(LuaValue& value); // 从栈中弹出一个元素，并设置到value中
+    void Pop(int n);    // 从栈中弹出n个元素
 protected:
     LUATYPE _Pop(bool& value);
     LUATYPE _Pop(int& value);
@@ -159,6 +184,7 @@ protected:
     LUATYPE _Pop(const char* value);
     LUATYPE _Pop(lua_CFunction& value);
     LUATYPE _Pop(void);
+#pragma endregion
 
 /////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////       访问table          /////////////////////////////////

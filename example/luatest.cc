@@ -49,12 +49,19 @@ int main()
         }
     )");
 
-    bbt::cxxlua::Value value_test1;
+    bbt::cxxlua::LuaValue value_test1;
     IF_NOT_EXIT(err4, lua.GetByKey4Table(value_test1, "G_TB", "test1"));
-    printf("test1 = %d\n", value_test1.basevalue.integer);
+
+    double number;
+    std::string str;
+
+    assert(value_test1.GetValue(number));
+    printf("test1 = %d\n", (int)number);
     IF_NOT_EXIT(err5, lua.GetByKey4Table(value_test1, "G_TB", "test2", "test3"));
-    printf("test3 = %d\n", value_test1.basevalue.integer);
+    assert(value_test1.GetValue(number));
+    printf("test3 = %d\n", (int)number);
     IF_NOT_EXIT(err6, lua.GetByKey4Table(value_test1, "G_TB", 4));
-    printf("test1 = %s\n", value_test1.str.c_str());    
+    assert(value_test1.GetValue(str));
+    printf("test1 = %s\n", str.c_str());    
 
 }

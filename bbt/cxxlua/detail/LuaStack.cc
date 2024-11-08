@@ -206,24 +206,30 @@ void LuaStack::Pop(int n)
 
 std::optional<LuaErr> LuaStack::Pop(LuaValue& value)
 {
+    Value v;
     /* 获取栈顶元素类型 */
     LUATYPE type = GetType(g_lua_top_ref);
     switch (type)
     {
     case LUATYPE_BOOL:
-        value.type = _Pop(value.basevalue.boolean);
+        _Pop(v.basevalue.boolean);
+        value.SetValue(v.basevalue.boolean);
         break;
     case LUATYPE_CSTRING:
-        value.type = _Pop(value.str);
+        _Pop(v.str);
+        value.SetValue(v.str);
         break;
     case LUATYPE_FUNCTION:
-        value.type = _Pop(value.cfunc);
+        _Pop(v.cfunc);
+        value.SetValue(v.cfunc);
         break;
     case LUATYPE_NUMBER:
-        value.type = _Pop(value.basevalue.integer);
+        _Pop(v.basevalue.number);
+        value.SetValue(v.basevalue.number);
         break;
     case LUATYPE_NIL:
-        value.type = _Pop();
+        _Pop();
+        value.SetValue(nil);
         break;
     default:
         return LuaErr("Pop() unsupported type!", ERRCODE::Comm_Failed);
