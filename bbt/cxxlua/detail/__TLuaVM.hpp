@@ -47,4 +47,22 @@ std::optional<LuaErr> LuaVM::SetGlobalValue(const std::string& value_name, const
     return m_stack->SetGlobalValue(value_name, value);
 }
 
+template<typename TValue>
+std::optional<LuaErr> LuaVM::Push(TValue value)
+{
+    /* 该函数实例化时检测TValue是否合法 */
+    static_assert(detail::CheckIsCanTransfromToLuaType<TValue>());
+
+    return m_stack->Push(value);
+}
+
+template<typename TValue>
+std::optional<LuaErr> LuaVM::Pop(TValue& value)
+{
+    /* 该函数实例化时检测TValue是否合法 */
+    static_assert(detail::CheckIsCanTransfromToLuaType<TValue>());
+
+    return m_stack->Pop(value);
+}
+
 }

@@ -63,11 +63,28 @@ public: /* LuaTable 相关接口 */
         const std::string& table_template_name,
         const std::string& global_table_name);
 
-public: /* low level api */
+public: /*  */
+    /**
+     *  低级api（low level api），使用习惯和直接使用lua接口类似，但是加了更安全的检测和方便的语法糖
+     */
+    template<typename TValue>
+    CXXLUA_API LOW_LEVEL std::optional<LuaErr> Push(TValue value);
+
+    template<typename TValue>
+    CXXLUA_API LOW_LEVEL std::optional<LuaErr> Pop(TValue& value);
+
+    CXXLUA_API LOW_LEVEL std::optional<LuaErr> GetTopType(LuaRef);
+
+    /**
+     * @brief 获取栈上index位置的 LuaRef 对象
+     * 
+     * @param index 栈上元素位置，和lua接口传递index含义相同
+     * @return LuaRef 对象引用，若index非法，返回的LuaRef指向nil
+     */
+    CXXLUA_API LOW_LEVEL LuaRef GetRef(int index);
+
     
-    
-    template<typename KeyType>
-    CXXLUA_API LOW_LEVEL std::optional<LuaErr> Insert2Table();
+    CXXLUA_API LOW_LEVEL std::optional<LuaErr> Insert2Table(const LuaRef& table);
 protected: /* 表操作 */
     CXXLUA_API std::optional<LuaErr> ExistGlobalFunc(const std::string& funcname);
 

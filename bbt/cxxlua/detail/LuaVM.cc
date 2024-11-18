@@ -76,4 +76,9 @@ std::optional<LuaErr> LuaVM::PushAGlobalTableByName(
     return std::nullopt;
 }
 
+LuaRef LuaVM::GetRef(int index)
+{
+}
+
+
 }

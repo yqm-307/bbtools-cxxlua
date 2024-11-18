@@ -174,6 +174,9 @@ public:
 
 #pragma region // 栈操作
 
+    // 读操作
+    LuaRetPair<LuaRef> GetRef(int index);
+
     std::optional<LuaErr> Pop(LuaValue& value); // 从栈中弹出一个元素，并设置到value中
     void Pop(int n);    // 从栈中弹出n个元素
 protected:
@@ -184,6 +187,7 @@ protected:
     LUATYPE _Pop(const char* value);
     LUATYPE _Pop(lua_CFunction& value);
     LUATYPE _Pop(void);
+    // 写操作
 #pragma endregion
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -306,6 +310,8 @@ protected:
      */
     template<typename ... Args>
     std::optional<LuaErr> __CallLuaFunction(int nparam, int nresult, Args... args);
+private:
+    LuaErrOpt __CheckIndex(int index);
 
 private:
     lua_State* lua{nullptr};

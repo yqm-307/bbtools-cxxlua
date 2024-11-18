@@ -11,6 +11,7 @@ class LuaRef
 public:
     explicit LuaRef(int index, LUATYPE type):m_index(index), m_type(type) {}
     LuaRef(const LuaRef& other):m_index(other.m_index), m_type(other.m_type) {}
+    LuaRef():m_index(0), m_type(LUATYPE_NIL) {}
     ~LuaRef() {}
 
 protected:

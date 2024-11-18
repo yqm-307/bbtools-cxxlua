@@ -204,6 +204,15 @@ void LuaStack::Pop(int n)
     lua_pop(Context(), n);
 }
 
+LuaRetPair<LuaRef> LuaStack::GetRef(int index)
+{
+    auto err = __CheckIndex(index);
+    if (err)
+        return {err, LuaRef{}};
+    
+    return {std::nullopt, LuaRef{index, GetType()}}
+}
+
 std::optional<LuaErr> LuaStack::Pop(LuaValue& value)
 {
     Value v;
@@ -483,6 +492,15 @@ std::optional<LuaErr> LuaStack::__CallLuaFunction(int nparam, int nresult)
     return std::nullopt;
 }
 
+LuaErrOpt LuaStack::__CheckIndex(int index)
+{
+    // lua_absindex 并不检测有效性
+    index = lua_absindex(Context(), index);
+    if (index <= 0 || index > Size())
+        return LuaErr{"bad index", ERRCODE::Stack_ErrIndex};
+
+    return std::nullopt;
+}
 
 
 }
