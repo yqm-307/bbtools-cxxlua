@@ -62,9 +62,9 @@ typedef std::optional<LuaErr> LuaErrOpt;
 template<typename TParam>
 using LuaRetPair = std::pair<LuaErrOpt, TParam>;
 
-typedef std::function<void(std::unique_ptr<LuaState>&)> LuaFunction;
+typedef std::function<void(std::shared_ptr<LuaState>&)> LuaFunction;
 /* cxx 调用 lua ，lua 返回值解析函数 */
-typedef std::function<std::optional<LuaErr>(std::unique_ptr<LuaStack>&)> LuaParseReturnCallback;
+typedef std::function<std::optional<LuaErr>(std::shared_ptr<LuaStack>&)> LuaParseReturnCallback;
 
 
 } // namespace bbt::cxxlua::detail

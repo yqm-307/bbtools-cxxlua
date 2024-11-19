@@ -29,7 +29,7 @@ int main()
     auto call_func_err = lua.CallLuaFunction(
         "PrintInfo",
         0,
-        [](std::unique_ptr<bbt::cxxlua::detail::LuaStack>& ptr) { 
+        [](std::shared_ptr<bbt::cxxlua::detail::LuaStack>& ptr) { 
             printf("参数解析\n"); 
             return std::nullopt; 
         },

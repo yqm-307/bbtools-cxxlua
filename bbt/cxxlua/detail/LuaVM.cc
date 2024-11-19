@@ -1,10 +1,11 @@
 #include <bbt/cxxlua/detail/LuaVM.hpp>
+#include <bbt/cxxlua/detail/LuaRef.hpp>
 
 namespace bbt::cxxlua::detail
 {
 
 LuaVM::LuaVM()
-    :m_stack(std::make_unique<LuaStack>(luaL_newstate()))
+    :m_stack(std::make_shared<LuaStack>(luaL_newstate()))
 {
 }
 
@@ -76,8 +77,9 @@ std::optional<LuaErr> LuaVM::PushAGlobalTableByName(
     return std::nullopt;
 }
 
-LuaRef LuaVM::GetRef(int index)
+LuaRetPair<LuaRef> LuaVM::GetRef(int index)
 {
+    return m_stack->GetRef(index);
 }
 
 

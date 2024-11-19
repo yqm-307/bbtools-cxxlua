@@ -1,10 +1,9 @@
 #pragma once
-#include "bbt/cxxlua/detail/TypeHelper.hpp"
-#include "bbt/base/file/FileHelper.hpp"
-#include "LuaErr.hpp"
-#include "LuaRef.hpp"
-#include "LuaTable.hpp"
-#include "LuaValue.hpp"
+#include <bbt/base/file/FileHelper.hpp>
+#include <bbt/cxxlua/detail/TypeHelper.hpp>
+#include <bbt/cxxlua/detail/LuaErr.hpp>
+#include <bbt/cxxlua/detail/LuaTable.hpp>
+#include <bbt/cxxlua/detail/LuaValue.hpp>
 
 namespace bbt::cxxlua::detail
 {
@@ -67,6 +66,7 @@ public:
     LuaRef GetTop();
 
     /* 获取栈上idx处元素类型 */
+    LUATYPE GetType(const int& index);
     LUATYPE GetType(const LuaRef& ref);
 
     /* 获取栈长度 */
@@ -174,6 +174,7 @@ public:
 
 #pragma region // 栈操作
 
+    int AbsIndex(int index);
     // 读操作
     LuaRetPair<LuaRef> GetRef(int index);
 

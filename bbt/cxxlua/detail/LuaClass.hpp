@@ -1,5 +1,6 @@
 #pragma once
-#include "LuaStack.hpp"
+#include <bbt/cxxlua/detail/LuaStack.hpp>
+#include <bbt/cxxlua/detail/LuaRef.hpp>
 
 namespace bbt::cxxlua::detail
 {
@@ -32,7 +33,7 @@ protected: /* 给派生类用来注册函数（lua绑定类需要关注） */
     /* 设置c++中初始化的构造函数（lua中的class.new(...)，需要处理参数) */
     static bool InitConstructor(const ConstructFunction& constructor);
     /* 注册函数 */
-    static bool Register(std::unique_ptr<LuaStack>& stack);
+    static bool Register(std::shared_ptr<LuaStack>& stack);
 
     /* 派生类需要实现此函数，用来注册lua类 */
     // static void CXXLuaInit(std::unique_ptr<bbt::cxxlua::detail::LuaStack>& stack);
@@ -69,4 +70,4 @@ typename LuaClass<T>::FuncsMap LuaClass<T>::m_funcs{};
 
 } // namespace bbt::cxxlua::detail
 
-#include "./LuaClass_Def.hpp"
+#include <bbt/cxxlua/detail/__TLuaClass.hpp>

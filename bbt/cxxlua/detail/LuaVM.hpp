@@ -81,7 +81,7 @@ public: /*  */
      * @param index 栈上元素位置，和lua接口传递index含义相同
      * @return LuaRef 对象引用，若index非法，返回的LuaRef指向nil
      */
-    CXXLUA_API LOW_LEVEL LuaRef GetRef(int index);
+    CXXLUA_API LOW_LEVEL LuaRetPair<LuaRef> GetRef(int index);
 
     
     CXXLUA_API LOW_LEVEL std::optional<LuaErr> Insert2Table(const LuaRef& table);
@@ -90,7 +90,7 @@ protected: /* 表操作 */
 
 protected: /* 函数操作 */
 private:
-    std::unique_ptr<LuaStack> m_stack;
+    std::shared_ptr<LuaStack> m_stack;
 };
 
 }

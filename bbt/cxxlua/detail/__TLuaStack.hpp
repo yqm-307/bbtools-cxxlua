@@ -112,7 +112,7 @@ std::optional<LuaErr> LuaStack::__CallLuaFunction(int params, int returns, Args.
 template<typename TKey, typename ...Args>
 std::optional<LuaErr> LuaStack::_GetByKey4Table(LuaValue& value, TKey key, Args ...args)
 {
-    if (LUATYPE_LUATABLE != GetType(g_lua_top_ref))
+    if (LUATYPE_LUATABLE != GetType(-1))
         return LuaErr("[LuaStack::_GetByKey4Table] top value not lua table!", ERRCODE::Comm_Failed);
 
     // 压入key，获取table值
@@ -129,7 +129,7 @@ std::optional<LuaErr> LuaStack::_GetByKey4Table(LuaValue& value, TKey key, Args 
 template<typename TKeyValue>
 std::optional<LuaErr> LuaStack::_GetByKey4Table(LuaValue& value, TKeyValue key)
 {
-    if (LUATYPE_LUATABLE != GetType(g_lua_top_ref))
+    if (LUATYPE_LUATABLE != GetType(-1))
         return LuaErr("top value not lua table!", ERRCODE::Comm_Failed);
     
     Push(key);

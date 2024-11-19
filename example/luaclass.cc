@@ -11,7 +11,7 @@ public:
     ~Player() {
     }
 
-    static std::optional<bbt::cxxlua::LuaErr> CXXLuaInit(std::unique_ptr<bbt::cxxlua::detail::LuaStack>& stack) {
+    static std::optional<bbt::cxxlua::LuaErr> CXXLuaInit(std::shared_ptr<bbt::cxxlua::detail::LuaStack>& stack) {
         InitFuncs({
             {"GetId", &Player::cxx2lua_GetId},
             {"SetId", &Player::cxx2lua_SetId},

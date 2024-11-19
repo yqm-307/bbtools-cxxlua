@@ -11,7 +11,7 @@ public:
     Object()  { m_count++; }
     ~Object() { m_count--; }
 
-    static std::optional<bbt::cxxlua::LuaErr> CXXLuaInit(std::unique_ptr<bbt::cxxlua::detail::LuaStack>& stack)
+    static std::optional<bbt::cxxlua::LuaErr> CXXLuaInit(std::shared_ptr<bbt::cxxlua::detail::LuaStack>& stack)
     {
         InitClass("GCObject");
         InitConstructor([](lua_State* l){

@@ -1,4 +1,5 @@
 #include <bbt/cxxlua/detail/LuaStack.hpp>
+#include <bbt/cxxlua/detail/LuaRef.hpp>
 
 namespace bbt::cxxlua::detail
 {
@@ -10,6 +11,7 @@ LuaStack::LuaStack(lua_State* l)
 
 LuaStack::~LuaStack()
 {
+    lua_close(lua);
 }
 
 std::optional<LuaErr> LuaStack::DoScript(const std::string& script)
@@ -171,12 +173,17 @@ std::optional<LuaErr> LuaStack::Copy2Top(const LuaRef& ref)
 
 LuaRef LuaStack::GetTop()
 {
-    return LuaRef(lua_gettop(Context()), GetType(g_lua_top_ref));
+    return LuaRef{weak_from_this(), lua_gettop(Context())};
+}
+
+LUATYPE LuaStack::GetType(const int& index)
+{
+    return (LUATYPE)lua_type(Context(), index);
 }
 
 LUATYPE LuaStack::GetType(const LuaRef& ref)
 {
-    return (LUATYPE)lua_type(Context(), ref.GetIndex());
+    return GetType(ref.GetIndex());
 }
 
 size_t LuaStack::Size()
@@ -204,20 +211,25 @@ void LuaStack::Pop(int n)
     lua_pop(Context(), n);
 }
 
+int LuaStack::AbsIndex(int index)
+{
+    return lua_absindex(Context(), index);
+}
+
 LuaRetPair<LuaRef> LuaStack::GetRef(int index)
 {
     auto err = __CheckIndex(index);
     if (err)
         return {err, LuaRef{}};
     
-    return {std::nullopt, LuaRef{index, GetType()}}
+    return {std::nullopt, LuaRef{weak_from_this(), index}};
 }
 
 std::optional<LuaErr> LuaStack::Pop(LuaValue& value)
 {
     Value v;
     /* 获取栈顶元素类型 */
-    LUATYPE type = GetType(g_lua_top_ref);
+    LUATYPE type = GetType(-1);
     switch (type)
     {
     case LUATYPE_BOOL:
@@ -250,7 +262,7 @@ std::optional<LuaErr> LuaStack::Pop(LuaValue& value)
 
 LUATYPE LuaStack::_Pop(bool& value)
 {
-    LUATYPE type = GetType(g_lua_top_ref);
+    LUATYPE type = GetType(-1);
     value = lua_toboolean(Context(), -1);
     lua_pop(Context(), 1);
     return type;
@@ -258,7 +270,7 @@ LUATYPE LuaStack::_Pop(bool& value)
 
 LUATYPE LuaStack::_Pop(int& value)
 {
-    LUATYPE type = GetType(g_lua_top_ref);
+    LUATYPE type = GetType(-1);
     value = lua_tointeger(Context(), -1);
     lua_pop(Context(), 1);
     return type;
@@ -266,7 +278,7 @@ LUATYPE LuaStack::_Pop(int& value)
 
 LUATYPE LuaStack::_Pop(double& value)
 {
-    LUATYPE type = GetType(g_lua_top_ref);
+    LUATYPE type = GetType(-1);
     value = lua_tonumber(Context(), -1);
     lua_pop(Context(), 1);
     return type;
@@ -274,7 +286,7 @@ LUATYPE LuaStack::_Pop(double& value)
 
 LUATYPE LuaStack::_Pop(std::string& value) 
 {
-    LUATYPE type = GetType(g_lua_top_ref);
+    LUATYPE type = GetType(-1);
     value = lua_tostring(Context(), -1);
     lua_pop(Context(), 1);
     return type;
@@ -282,7 +294,7 @@ LUATYPE LuaStack::_Pop(std::string& value)
 
 LUATYPE LuaStack::_Pop(const char* value) 
 {
-    LUATYPE type = GetType(g_lua_top_ref);
+    LUATYPE type = GetType(-1);
     value = lua_tostring(Context(), -1);
     lua_pop(Context(), 1);
     return type;
@@ -290,7 +302,7 @@ LUATYPE LuaStack::_Pop(const char* value)
 
 LUATYPE LuaStack::_Pop(lua_CFunction& value)
 {
-    LUATYPE type = GetType(g_lua_top_ref);
+    LUATYPE type = GetType(-1);
     value = lua_tocfunction(Context(), -1);
     lua_pop(Context(), 1);
     return type;
@@ -298,7 +310,7 @@ LUATYPE LuaStack::_Pop(lua_CFunction& value)
 
 LUATYPE LuaStack::_Pop(void)
 {
-    LUATYPE type = GetType(g_lua_top_ref);
+    LUATYPE type = GetType(-1);
     lua_pop(Context(), 1);
     return type;
 }
@@ -317,7 +329,7 @@ lua_State* LuaStack::Context()
 LUATYPE LuaStack::Push(int32_t value) 
 {
     lua_pushinteger(Context(), value);
-    return GetType(g_lua_top_ref);
+    return GetType(-1);
 }
 
 LUATYPE LuaStack::Push(int64_t value)
@@ -328,7 +340,7 @@ LUATYPE LuaStack::Push(int64_t value)
 LUATYPE LuaStack::Push(uint32_t value)
 {
     lua_pushinteger(Context(), value);
-    return GetType(g_lua_top_ref);
+    return GetType(-1);
 }
 
 LUATYPE LuaStack::Push(uint64_t value)
@@ -339,7 +351,7 @@ LUATYPE LuaStack::Push(uint64_t value)
 LUATYPE LuaStack::Push(double value)
 {
     lua_pushnumber(Context(), value);
-    return GetType(g_lua_top_ref);
+    return GetType(-1);
 }
 
 LUATYPE LuaStack::Push(const std::string& value)
@@ -348,7 +360,7 @@ LUATYPE LuaStack::Push(const std::string& value)
     if(ret == NULL) {
         return LUATYPE::LUATYPE_NIL;
     }
-    return GetType(g_lua_top_ref);
+    return GetType(-1);
 }
 
 LUATYPE LuaStack::Push(const char* value)
@@ -357,19 +369,19 @@ LUATYPE LuaStack::Push(const char* value)
     if(ret == NULL) {
         return LUATYPE::LUATYPE_NIL;
     }
-    return GetType(g_lua_top_ref);
+    return GetType(-1);
 }
 
 LUATYPE LuaStack::Push(lua_CFunction cfunc)
 {
     lua_pushcfunction(Context(), cfunc);
-    return GetType(g_lua_top_ref);
+    return GetType(-1);
 }
 
 LUATYPE LuaStack::Push(const LuaRef& lua_ref)
 {
     lua_pushvalue(Context(), lua_ref.GetIndex());
-    return GetType(g_lua_top_ref);
+    return GetType(-1);
 }
 
 LUATYPE LuaStack::Push(const Nil& nil)

@@ -1,28 +1,48 @@
 #pragma once
-#include "Config.hpp"
+#include <bbt/cxxlua/detail/Config.hpp>
 
 namespace bbt::cxxlua::detail
 {
 
 class LuaRef
 {
-    friend class LuaStack;
-    template<typename T> friend class LuaClass;
 public:
-    explicit LuaRef(int index, LUATYPE type):m_index(index), m_type(type) {}
-    LuaRef(const LuaRef& other):m_index(other.m_index), m_type(other.m_type) {}
-    LuaRef():m_index(0), m_type(LUATYPE_NIL) {}
+    explicit LuaRef(std::weak_ptr<LuaStack> stack, int index);
+    LuaRef(const LuaRef& other);
+    LuaRef();
     ~LuaRef() {}
 
-protected:
-    void SetIndex(int index, LUATYPE type) { m_index = index; m_type = type; }
-    int  GetIndex() const { return m_index; }
-    LUATYPE GetType() const { return m_type; }
+    /**
+     * @brief 设置栈和索引
+     */
+    bool SetIndex(std::shared_ptr<LuaStack> stack, int index);
+    bool SetIndex(int index);
+    bool SetStack(std::shared_ptr<LuaStack> stack);
+
+    /**
+     * @brief 获取栈上绝对索引
+     */
+    int  GetIndex() const;
+
+    /**
+     * @brief 获取类型
+     */
+    LUATYPE GetType() const;
+
+    /**
+     * @brief 当前引用是否存在于栈上
+     */
+    operator bool();
 private:
-    int m_index{0};
-    LUATYPE m_type{LUATYPE::LUATYPE_NONE};
+    /* 获取lua栈上的绝对索引 */
+    int AbsIndex(int index);
+
+    /* 是否有效 */
+    static bool IsInvaild(std::weak_ptr<LuaStack> stack, int index);
+private:
+    int m_index{0}; // lua栈上索引
+    std::weak_ptr<LuaStack> m_stack;
 };
 
-static const LuaRef g_lua_top_ref = LuaRef(-1, LUATYPE::LUATYPE_NONE);
 
 } // namespace bbt::cxxlua::detail

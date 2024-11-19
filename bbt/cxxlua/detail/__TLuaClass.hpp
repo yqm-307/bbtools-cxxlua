@@ -1,5 +1,5 @@
 #pragma once
-#include "LuaClass.hpp"
+#include <bbt/cxxlua/detail/LuaClass.hpp>
 
 namespace bbt::cxxlua::detail
 {
@@ -43,7 +43,7 @@ bool LuaClass<CXXClassType>::InitConstructor(const ConstructFunction& constructo
 
 
 template<typename CXXClassType>
-bool LuaClass<CXXClassType>::Register(std::unique_ptr<LuaStack>& stack)
+bool LuaClass<CXXClassType>::Register(std::shared_ptr<LuaStack>& stack)
 {
     /**
      * 下面的操作类似于lua中的（效果类似）：
