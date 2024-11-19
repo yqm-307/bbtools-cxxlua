@@ -19,13 +19,15 @@ namespace bbt::cxxlua::detail
  */
 
 class LuaStack:
-    std::enable_shared_from_this<LuaStack>
+    public std::enable_shared_from_this<LuaStack>
 {
     template<typename T> friend class LuaClass;
-public:
+private:
     LuaStack(lua_State* l);
+    LuaStack();
+public:
+    static std::shared_ptr<LuaStack> Create(lua_State* l);
     ~LuaStack();
-
 #pragma region // 其他操作
     /**
      * @brief 执行lua脚本
@@ -225,7 +227,7 @@ public:
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
-protected:
+
     lua_State* Context();
 
     /* 栈操作 */
@@ -245,6 +247,7 @@ protected:
     template<typename T, typename ... Args>
     void PushMany(T arg, Args ...args);
 
+protected:
     /**
      * @brief 判断值是否为安全的可入栈的
      * 

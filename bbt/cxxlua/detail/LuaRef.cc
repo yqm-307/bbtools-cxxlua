@@ -10,6 +10,7 @@ LuaRef::LuaRef(std::weak_ptr<LuaStack> stack, int index):
 {
     /* 初始化必须是合法索引 */
     Assert(m_index != 0);
+    Assert(!m_stack.expired());
 }
 
 LuaRef::LuaRef(const LuaRef& other):
@@ -17,6 +18,7 @@ LuaRef::LuaRef(const LuaRef& other):
     m_stack(other.m_stack)
 {
     Assert(m_index != 0);
+    Assert(!m_stack.expired());
 }
 
 LuaRef::LuaRef()

@@ -18,3 +18,7 @@ add_test(NAME Test_luaclass_gc COMMAND Test_luaclass_gc)
 add_executable(Test_luavm Test_luavm.cc)
 target_link_libraries(Test_luavm ${MY_COMM_LIB})
 add_test(NAME Test_luavm COMMAND Test_luavm)
+
+add_executable(Test_stack Test_stack.cc)
+target_link_libraries(Test_stack ${MY_COMM_LIB})
+add_test(NAME Test_stack COMMAND Test_stack)

@@ -4,10 +4,24 @@
 namespace bbt::cxxlua::detail
 {
 
-LuaStack::LuaStack(lua_State* l)
-    :lua(l)
+std::shared_ptr<LuaStack> LuaStack::Create(lua_State* l)
+{
+    if (l == nullptr)
+        return std::shared_ptr<LuaStack>(new LuaStack());
+
+    return std::shared_ptr<LuaStack>(new LuaStack(l));
+}
+
+LuaStack::LuaStack(lua_State* l):
+    lua(l)
 {
 }
+
+LuaStack::LuaStack():
+    lua(luaL_newstate())
+{
+}
+
 
 LuaStack::~LuaStack()
 {

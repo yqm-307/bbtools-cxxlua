@@ -5,7 +5,7 @@ namespace bbt::cxxlua::detail
 {
 
 LuaVM::LuaVM()
-    :m_stack(std::make_shared<LuaStack>(luaL_newstate()))
+    :m_stack(LuaStack::Create(nullptr))
 {
 }
 
