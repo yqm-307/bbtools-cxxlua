@@ -239,6 +239,28 @@ LuaRetPair<LuaRef> LuaStack::GetRef(int index)
     return {std::nullopt, LuaRef{weak_from_this(), index}};
 }
 
+LuaRetPair<LuaValue> LuaStack::GetValue(int index)
+{
+    auto value = LuaValue{};
+    auto err = __CheckIndex(index);
+    if (err)
+        return {err, value};
+    
+    Value v;
+    LUATYPE type = GetType(index);
+    switch (type)
+    {
+    case :
+        /* code */
+        break;
+    
+    default:
+        break;
+    }
+
+    return {std::nullopt, LuaValue()};
+}
+
 std::optional<LuaErr> LuaStack::Pop(LuaValue& value)
 {
     Value v;
@@ -274,59 +296,143 @@ std::optional<LuaErr> LuaStack::Pop(LuaValue& value)
     return std::nullopt;
 }
 
-LUATYPE LuaStack::_Pop(bool& value)
+LuaErrOpt LuaStack::_ToValue(bool& value, int index)
 {
-    LUATYPE type = GetType(-1);
-    value = lua_toboolean(Context(), -1);
-    lua_pop(Context(), 1);
-    return type;
+    LUATYPE type = GetType(index);
+    value = lua_toboolean(Context(), index);
+    if (type != LUATYPE_BOOL)
+        return LuaErr{"unexpected type!", ERRCODE::Type_UnExpected}; // 非预期类型
+
+    return std::nullopt; 
 }
 
-LUATYPE LuaStack::_Pop(int& value)
+LuaErrOpt LuaStack::_ToValue(int& value, int index)
 {
-    LUATYPE type = GetType(-1);
-    value = lua_tointeger(Context(), -1);
-    lua_pop(Context(), 1);
-    return type;
+    LUATYPE type = GetType(index);
+    value = lua_tointeger(Context(), index);
+    if (type != LUATYPE_NUMBER)
+        return LuaErr{"unexpected type!", ERRCODE::Type_UnExpected}; // 非预期类型
+
+    return std::nullopt; 
 }
 
-LUATYPE LuaStack::_Pop(double& value)
+LuaErrOpt LuaStack::_ToValue(double& value, int index)
 {
-    LUATYPE type = GetType(-1);
-    value = lua_tonumber(Context(), -1);
-    lua_pop(Context(), 1);
-    return type;
+    LUATYPE type = GetType(index);
+    value = lua_tonumber(Context(), index);
+    if (type != LUATYPE_NUMBER)
+        return LuaErr{"unexpected type!", ERRCODE::Type_UnExpected}; // 非预期类型
+
+    return std::nullopt; 
 }
 
-LUATYPE LuaStack::_Pop(std::string& value) 
+LuaErrOpt LuaStack::_ToValue(std::string& value, int index)
 {
-    LUATYPE type = GetType(-1);
-    value = lua_tostring(Context(), -1);
-    lua_pop(Context(), 1);
-    return type;
+    LUATYPE type = GetType(index);
+    value = lua_tostring(Context(), index);
+    if (type != LUATYPE_CSTRING)
+        return LuaErr{"unexpected type!", ERRCODE::Type_UnExpected}; // 非预期类型
+
+    return std::nullopt; 
 }
 
-LUATYPE LuaStack::_Pop(const char* value) 
+LuaErrOpt LuaStack::_ToValue(const char* value, int index)
 {
-    LUATYPE type = GetType(-1);
-    value = lua_tostring(Context(), -1);
-    lua_pop(Context(), 1);
-    return type;
+    LUATYPE type = GetType(index);
+    value = lua_tostring(Context(), index);
+    if (type != LUATYPE_CSTRING)
+        return LuaErr{"unexpected type!", ERRCODE::Type_UnExpected}; // 非预期类型
+
+    return std::nullopt; 
 }
 
-LUATYPE LuaStack::_Pop(lua_CFunction& value)
+LuaErrOpt LuaStack::_ToValue(lua_CFunction& value, int index)
 {
-    LUATYPE type = GetType(-1);
-    value = lua_tocfunction(Context(), -1);
-    lua_pop(Context(), 1);
-    return type;
+    LUATYPE type = GetType(index);
+    value = lua_tocfunction(Context(), index);
+    if (type != LUATYPE_CSTRING)
+        return LuaErr{"unexpected type!", ERRCODE::Type_UnExpected}; // 非预期类型
+
+    return std::nullopt; 
 }
 
-LUATYPE LuaStack::_Pop(void)
+LuaErrOpt LuaStack::_ToValue(Nil& nil, int index)
 {
-    LUATYPE type = GetType(-1);
-    lua_pop(Context(), 1);
-    return type;
+    LUATYPE type = GetType(index);
+    if (type != LUATYPE_NIL)
+        return LuaErr{"unexpected type!", ERRCODE::Type_UnExpected}; // 非预期类型
+
+    return std::nullopt; 
+}
+
+LuaRetPair<LUATYPE> LuaStack::_Pop(bool& value)
+{
+    auto err = _ToValue(value, -1);
+    if (err)
+        return {err, LUATYPE_NONE};
+
+    Pop(1);
+    return {std::nullopt, LUATYPE_BOOL};
+}
+
+LuaRetPair<LUATYPE> LuaStack::_Pop(int& value)
+{
+    auto err = _ToValue(value, -1);
+    if (err)
+        return {err, LUATYPE_NONE};
+
+    Pop(1);
+    return {std::nullopt, LUATYPE_NUMBER};
+}
+
+LuaRetPair<LUATYPE> LuaStack::_Pop(double& value)
+{
+    auto err = _ToValue(value, -1);
+    if (err)
+        return {err, LUATYPE_NONE};
+
+    Pop(1);
+    return {std::nullopt, LUATYPE_NUMBER};
+}
+
+LuaRetPair<LUATYPE> LuaStack::_Pop(std::string& value) 
+{
+    auto err = _ToValue(value, -1);
+    if (err)
+        return {err, LUATYPE_NONE};
+
+    Pop(1);
+    return {std::nullopt, LUATYPE_CSTRING};
+}
+
+LuaRetPair<LUATYPE> LuaStack::_Pop(const char* value) 
+{
+    auto err = _ToValue(value, -1);
+    if (err)
+        return {err, LUATYPE_NONE};
+
+    Pop(1);
+    return {std::nullopt, LUATYPE_CSTRING};
+}
+
+LuaRetPair<LUATYPE> LuaStack::_Pop(lua_CFunction& value)
+{
+    auto err = _ToValue(value, -1);
+    if (err)
+        return {err, LUATYPE_NONE};
+
+    Pop(1);
+    return {std::nullopt, LUATYPE_FUNCTION};
+}
+
+LuaRetPair<LUATYPE> LuaStack::_Pop(void)
+{
+    auto err = _ToValue(nil, -1);
+    if (err)
+        return {err, LUATYPE_NONE};
+
+    Pop(1);
+    return {std::nullopt, LUATYPE_NIL};
 }
 
 LUATYPE LuaStack::GetGlobal(const std::string& value_name)

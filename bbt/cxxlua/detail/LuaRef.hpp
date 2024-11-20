@@ -1,5 +1,6 @@
 #pragma once
 #include <bbt/cxxlua/detail/Config.hpp>
+#include <bbt/cxxlua/detail/LuaValue.hpp>
 
 namespace bbt::cxxlua::detail
 {
@@ -33,6 +34,8 @@ public:
      * @brief 当前引用是否存在于栈上
      */
     operator bool();
+
+    LuaErrOpt GetValue(LuaValue& value);
 private:
     /* 获取lua栈上的绝对索引 */
     int AbsIndex(int index);

@@ -94,5 +94,10 @@ bool LuaRef::IsInvaild(std::weak_ptr<LuaStack> stack_wkptr, int index)
     return false;
 }
 
+LuaErrOpt GetValue(LuaValue& value)
+{
+    
+}
+
 
 }

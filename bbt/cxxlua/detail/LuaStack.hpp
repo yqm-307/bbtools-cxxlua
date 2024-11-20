@@ -26,7 +26,7 @@ private:
     LuaStack(lua_State* l);
     LuaStack();
 public:
-    static std::shared_ptr<LuaStack> Create(lua_State* l);
+    static std::shared_ptr<LuaStack> Create(lua_State* l = nullptr);
     ~LuaStack();
 #pragma region // 其他操作
     /**
@@ -173,23 +173,33 @@ public:
 /////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////    栈操作                /////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
-
+public:
 #pragma region // 栈操作
 
     int AbsIndex(int index);
     // 读操作
     LuaRetPair<LuaRef> GetRef(int index);
+    LuaRetPair<LuaValue> GetValue(int index);
 
     std::optional<LuaErr> Pop(LuaValue& value); // 从栈中弹出一个元素，并设置到value中
     void Pop(int n);    // 从栈中弹出n个元素
 protected:
-    LUATYPE _Pop(bool& value);
-    LUATYPE _Pop(int& value);
-    LUATYPE _Pop(double& value);
-    LUATYPE _Pop(std::string& value);
-    LUATYPE _Pop(const char* value);
-    LUATYPE _Pop(lua_CFunction& value);
-    LUATYPE _Pop(void);
+    LuaErrOpt _ToValue(bool& value, int index);
+    LuaErrOpt _ToValue(int& value, int index);
+    LuaErrOpt _ToValue(double& value, int index);
+    LuaErrOpt _ToValue(std::string& value, int index);
+    LuaErrOpt _ToValue(const char* value, int index);
+    LuaErrOpt _ToValue(lua_CFunction& value, int index);
+    LuaErrOpt _ToValue(Nil& nil, int index);
+
+    LuaRetPair<LUATYPE> _Pop(bool& value);
+    LuaRetPair<LUATYPE> _Pop(int& value);
+    LuaRetPair<LUATYPE> _Pop(double& value);
+    LuaRetPair<LUATYPE> _Pop(std::string& value);
+    LuaRetPair<LUATYPE> _Pop(const char* value);
+    LuaRetPair<LUATYPE> _Pop(lua_CFunction& value);
+    LuaRetPair<LUATYPE> _Pop(void);
+
     // 写操作
 #pragma endregion
 

@@ -19,7 +19,7 @@ public:
     template<typename T>
     bool SetValue(const T& value);
     virtual bool IsNil() const override;
-    virtual int  StackIndex() const override;   
+    virtual int  StackIndex() const override;
     virtual bool ToLString(std::string& lua_str) const override;
 protected:
     void _SetValue(const double& value);
