@@ -80,9 +80,25 @@ BOOST_AUTO_TEST_CASE(t_c_call_lua)
     stack->GetGlobal("tostring");
     stack->LuaCall(1, 1, 100);
 
+    /* 函数返回一个值，此时栈上应只有一个值，且应为string */
     BOOST_CHECK_EQUAL(stack->Size(), 1);
     BOOST_CHECK_EQUAL(stack->GetTop().GetType(), bbt::cxxlua::LUATYPE::LUATYPE_CSTRING);
 
+    auto [err, ref] = stack->GetRef(-1);
+    if (err)
+        BOOST_WARN_MESSAGE(false, err.value().What());
+    BOOST_ASSERT(!err.has_value());
+
+    std::string str;
+    auto get_value_err = ref->GetValue(str);
+    if (get_value_err)
+        BOOST_WARN_MESSAGE(false, err.value().What());
+    BOOST_ASSERT(!get_value_err.has_value());
+
+    BOOST_CHECK_EQUAL(str, "100");
+    BOOST_CHECK_EQUAL(stack->Size(), 1);
+    stack->Pop(1);
+    BOOST_CHECK_EQUAL(stack->Size(), 0);
 }
 
 /**

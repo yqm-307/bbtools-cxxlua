@@ -1,4 +1,5 @@
 #include <bbt/cxxlua/detail/LuaValue.hpp>
+#include <bbt/cxxlua/detail/LuaErr.hpp>
 
 namespace bbt::cxxlua::detail
 {
@@ -76,54 +77,54 @@ void LuaValue::_SetValue(const Nil& value)
     m_value.type = LUATYPE::LUATYPE_NIL;
 }
 
-bool LuaValue::_GetValue(double& value) const
+LuaErrOpt LuaValue::_GetValue(double& value) const
 {
     if (GetType() != LUATYPE::LUATYPE_NUMBER)
-        return false;
+        return LuaErr{"not number", ERRCODE::Type_UnExpected};
 
     value = m_value.basevalue.number;
-    return true;
+    return std::nullopt;
 }
 
-bool LuaValue::_GetValue(int& value) const
+LuaErrOpt LuaValue::_GetValue(int& value) const
 {
     if (GetType() != LUATYPE::LUATYPE_NUMBER)
-        return false;
+        return LuaErr{"not number", ERRCODE::Type_UnExpected};
     
     value =  static_cast<int>(m_value.basevalue.number);
-    return true;
+    return std::nullopt;
 }
 
-bool LuaValue::_GetValue(std::string& value) const
+LuaErrOpt LuaValue::_GetValue(std::string& value) const
 {
     if (GetType() != LUATYPE::LUATYPE_CSTRING)
-        return false;
+        return LuaErr{"not string", ERRCODE::Type_UnExpected};
 
     value = m_value.str;
-    return true;
+    return std::nullopt;
 }
 
-bool LuaValue::_GetValue(bool& value) const
+LuaErrOpt LuaValue::_GetValue(bool& value) const
 {
     if (GetType() != LUATYPE::LUATYPE_BOOL)
-        return false;
+        return LuaErr{"not bool", ERRCODE::Type_UnExpected};
 
     value = m_value.basevalue.boolean;
-    return true;
+    return std::nullopt;
 }
 
-bool LuaValue::_GetValue(lua_CFunction& value) const
+LuaErrOpt LuaValue::_GetValue(lua_CFunction& value) const
 {
     if (GetType() != LUATYPE::LUATYPE_FUNCTION)
-        return false;
+        return LuaErr{"not function", ERRCODE::Type_UnExpected};
 
     value = m_value.cfunc;
-    return true;
+    return std::nullopt;
 }
 
-bool LuaValue::_GetValue(Nil& nil) const
+LuaErrOpt LuaValue::_GetValue(Nil& nil) const
 {
-    return true;
+    return std::nullopt;
 }
 
 }

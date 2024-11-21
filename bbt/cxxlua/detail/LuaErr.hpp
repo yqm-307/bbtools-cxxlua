@@ -24,6 +24,9 @@ enum ERRCODE
 
     // lua stack
     Stack_ErrIndex  = 14, // 错误的栈下标
+
+    // lua ref
+    LuaRef_InvaildRef  = 20, // 非法引用
 };
 
 namespace detail

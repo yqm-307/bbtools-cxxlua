@@ -1,8 +1,8 @@
 #pragma once
 #include <bbt/cxxlua/detail/Config.hpp>
 #include <bbt/cxxlua/detail/LuaValue.hpp>
-
 namespace bbt::cxxlua::detail
+
 {
 
 class LuaRef
@@ -35,13 +35,17 @@ public:
      */
     operator bool();
 
-    LuaErrOpt GetValue(LuaValue& value);
+    LuaRetPair<LuaValueOpt> GetValue();
+
+    template<typename T>
+    LuaErrOpt GetValue(T& value);
 private:
     /* 获取lua栈上的绝对索引 */
     int AbsIndex(int index);
 
     /* 是否有效 */
-    static bool IsInvaild(std::weak_ptr<LuaStack> stack, int index);
+    // static bool IsInvaild(std::weak_ptr<LuaStack> stack, int index);
+    static bool CheckIndex(std::weak_ptr<LuaStack> stack, int index);
 private:
     int m_index{0}; // lua栈上索引
     std::weak_ptr<LuaStack> m_stack;
@@ -49,3 +53,5 @@ private:
 
 
 } // namespace bbt::cxxlua::detail
+
+#include <bbt/cxxlua/detail/__TLuaRef.hpp>

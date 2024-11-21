@@ -77,7 +77,7 @@ std::optional<LuaErr> LuaVM::PushAGlobalTableByName(
     return std::nullopt;
 }
 
-LuaRetPair<LuaRef> LuaVM::GetRef(int index)
+LuaRetPair<LuaRefOpt> LuaVM::GetRef(int index)
 {
     return m_stack->GetRef(index);
 }

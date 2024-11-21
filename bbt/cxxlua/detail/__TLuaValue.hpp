@@ -7,7 +7,7 @@ namespace bbt::cxxlua::detail
 
 
 template<typename T>
-bool LuaValue::GetValue(T& value) const
+LuaErrOpt LuaValue::GetValue(T& value) const
 {
     return _GetValue(value);
 }

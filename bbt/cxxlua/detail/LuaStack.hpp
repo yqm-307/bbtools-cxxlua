@@ -177,9 +177,11 @@ public:
 #pragma region // 栈操作
 
     int AbsIndex(int index);
+    LuaErrOpt CheckIndex(int index);
+
     // 读操作
-    LuaRetPair<LuaRef> GetRef(int index);
-    LuaRetPair<LuaValue> GetValue(int index);
+    LuaRetPair<LuaRefOpt> GetRef(int index);
+    LuaRetPair<LuaValueOpt> GetValue(int index);
 
     std::optional<LuaErr> Pop(LuaValue& value); // 从栈中弹出一个元素，并设置到value中
     void Pop(int n);    // 从栈中弹出n个元素
@@ -325,7 +327,6 @@ protected:
     template<typename ... Args>
     std::optional<LuaErr> __CallLuaFunction(int nparam, int nresult, Args... args);
 private:
-    LuaErrOpt __CheckIndex(int index);
 
 private:
     lua_State* lua{nullptr};

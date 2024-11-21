@@ -1,5 +1,6 @@
 #include <bbt/cxxlua/detail/LuaRef.hpp>
 #include <bbt/cxxlua/detail/LuaStack.hpp>
+#include <bbt/cxxlua/detail/LuaErr.hpp>
 
 namespace bbt::cxxlua::detail
 {
@@ -29,7 +30,7 @@ LuaRef::LuaRef()
 LUATYPE LuaRef::GetType() const
 {
     auto stack = m_stack.lock();
-    if (IsInvaild(m_stack, m_index) || stack == nullptr)
+    if (!CheckIndex(m_stack, m_index) || stack == nullptr)
         return LUATYPE::LUATYPE_NONE;
 
     return stack->GetType(m_index);
@@ -37,12 +38,12 @@ LUATYPE LuaRef::GetType() const
 
 LuaRef::operator bool()
 {
-    return !IsInvaild(m_stack, m_index);
+    return CheckIndex(m_stack, m_index);
 }
 
 bool LuaRef::SetIndex(std::shared_ptr<LuaStack> stack, int index)
 {
-    if (IsInvaild(stack, index))
+    if (!CheckIndex(stack, index))
         return false;
 
     m_index = index;
@@ -52,7 +53,7 @@ bool LuaRef::SetIndex(std::shared_ptr<LuaStack> stack, int index)
 
 bool LuaRef::SetIndex(int index)
 {
-    if (IsInvaild(m_stack, index))
+    if (!CheckIndex(m_stack, index))
         return false;
 
     m_index = index;
@@ -61,7 +62,7 @@ bool LuaRef::SetIndex(int index)
 
 bool LuaRef::SetStack(std::shared_ptr<LuaStack> stack)
 {
-    if (IsInvaild(stack, m_index))
+    if (!CheckIndex(stack, m_index))
         return false;
 
     m_stack = stack;
@@ -82,21 +83,27 @@ int LuaRef::AbsIndex(int index)
     return stack->AbsIndex(index);
 }
 
-bool LuaRef::IsInvaild(std::weak_ptr<LuaStack> stack_wkptr, int index)
+bool LuaRef::CheckIndex(std::weak_ptr<LuaStack> stack_wkptr, int index)
 {
     auto stack = stack_wkptr.lock();
-    if (stack == nullptr || index <= 0)
-        return true;
-        
-    if (stack->Size() < index)
-        return true;
+    if (!stack)
+        return false;
+    
+    auto err = stack->CheckIndex(index);
+    if (err)
+        return false;
 
-    return false;
+    return true;
 }
 
-LuaErrOpt GetValue(LuaValue& value)
+
+LuaRetPair<LuaValueOpt> LuaRef::GetValue()
 {
+    if (!CheckIndex(m_stack, m_index))
+        return {LuaErr{"invaild ref!", ERRCODE::LuaRef_InvaildRef}, std::nullopt};
     
+    auto stack = m_stack.lock();
+    return stack->GetValue(m_index);
 }
 
 

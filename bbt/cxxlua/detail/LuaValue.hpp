@@ -1,5 +1,6 @@
 #pragma once
 #include <bbt/cxxlua/detail/interface/ILuaValue.hpp>
+#include <bbt/cxxlua/detail/LuaErr.hpp>
 
 namespace bbt::cxxlua::detail
 {
@@ -15,7 +16,7 @@ public:
 
     virtual LUATYPE GetType() const override;
     template<typename T>
-    bool GetValue(T& value) const;
+    LuaErrOpt GetValue(T& value) const;
     template<typename T>
     bool SetValue(const T& value);
     virtual bool IsNil() const override;
@@ -29,12 +30,12 @@ protected:
     void _SetValue(const lua_CFunction& value);
     void _SetValue(const Nil& value);
     
-    bool _GetValue(double& value) const;
-    bool _GetValue(int& value) const;
-    bool _GetValue(std::string& value) const;
-    bool _GetValue(bool& value) const;
-    bool _GetValue(lua_CFunction& value) const;
-    bool _GetValue(Nil& nil) const;
+    LuaErrOpt _GetValue(double& value) const;
+    LuaErrOpt _GetValue(int& value) const;
+    LuaErrOpt _GetValue(std::string& value) const;
+    LuaErrOpt _GetValue(bool& value) const;
+    LuaErrOpt _GetValue(lua_CFunction& value) const;
+    LuaErrOpt _GetValue(Nil& nil) const;
 private:
     Value m_value;
     // LUATYPE m_type{LUATYPE::LUATYPE_NIL};

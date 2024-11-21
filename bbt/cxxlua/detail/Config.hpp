@@ -54,10 +54,13 @@ class LuaErr;
 class LuaState;
 class LuaVM;
 class LuaStack;
+class LuaValue;
 class LuaRef;
 class LuaTable;
 
-typedef std::optional<LuaErr> LuaErrOpt; 
+typedef std::optional<LuaErr>   LuaErrOpt; 
+typedef std::optional<LuaValue> LuaValueOpt;
+typedef std::optional<LuaRef>   LuaRefOpt;
 
 template<typename TParam>
 using LuaRetPair = std::pair<LuaErrOpt, TParam>;

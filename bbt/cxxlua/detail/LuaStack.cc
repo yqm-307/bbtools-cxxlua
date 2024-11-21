@@ -4,6 +4,12 @@
 namespace bbt::cxxlua::detail
 {
 
+#define AUTO_TO_VALUE(var_name) \
+do{ \
+    _ToValue(var_name, index); \
+    value.SetValue(var_name); \
+}while(0);
+
 std::shared_ptr<LuaStack> LuaStack::Create(lua_State* l)
 {
     if (l == nullptr)
@@ -230,35 +236,48 @@ int LuaStack::AbsIndex(int index)
     return lua_absindex(Context(), index);
 }
 
-LuaRetPair<LuaRef> LuaStack::GetRef(int index)
+LuaRetPair<LuaRefOpt> LuaStack::GetRef(int index)
 {
-    auto err = __CheckIndex(index);
+    auto err = CheckIndex(index);
     if (err)
-        return {err, LuaRef{}};
+        return {err, std::nullopt};
     
     return {std::nullopt, LuaRef{weak_from_this(), index}};
 }
 
-LuaRetPair<LuaValue> LuaStack::GetValue(int index)
+LuaRetPair<LuaValueOpt> LuaStack::GetValue(int index)
 {
     auto value = LuaValue{};
-    auto err = __CheckIndex(index);
+    auto err = CheckIndex(index);
     if (err)
-        return {err, value};
+        return {err, std::nullopt};
     
     Value v;
     LUATYPE type = GetType(index);
+    /* 根据类型找到对应的处理函数，所以不需要进行类型检测 */
     switch (type)
     {
-    case :
-        /* code */
+    case LUATYPE_BOOL:
+        AUTO_TO_VALUE(v.basevalue.boolean);
         break;
-    
+    case LUATYPE_CSTRING:
+        AUTO_TO_VALUE(v.str);
+        break;
+    case LUATYPE_FUNCTION:
+        AUTO_TO_VALUE(v.cfunc);
+        break;
+    case LUATYPE_NUMBER:
+        AUTO_TO_VALUE(v.basevalue.number);
+        break;
+    case LUATYPE_NIL:
+        AUTO_TO_VALUE(nil);
+        break;
     default:
+        return {LuaErr("GetValue() unsupported type!", ERRCODE::Comm_Failed), LuaValue{}};
         break;
     }
 
-    return {std::nullopt, LuaValue()};
+    return {std::nullopt, value};
 }
 
 std::optional<LuaErr> LuaStack::Pop(LuaValue& value)
@@ -624,7 +643,7 @@ std::optional<LuaErr> LuaStack::__CallLuaFunction(int nparam, int nresult)
     return std::nullopt;
 }
 
-LuaErrOpt LuaStack::__CheckIndex(int index)
+LuaErrOpt LuaStack::CheckIndex(int index)
 {
     // lua_absindex 并不检测有效性
     index = lua_absindex(Context(), index);
