@@ -20,6 +20,7 @@ constexpr bool CheckIsCanTransfromToLuaType()
         std::is_same_v<bbt::type::remove_cvref_t<T>, std::string> ||
         std::is_same_v<bbt::type::remove_cvref_t<T>, double> ||
         std::is_same_v<bbt::type::remove_cvref_t<T>, char*> ||
+        std::is_same_v<bbt::type::remove_cvref_t<T>, const char*> ||
         std::is_same_v<bbt::type::remove_cvref_t<T>, bbt::cxxlua::detail::LuaRef> ||
         std::is_same_v<bbt::type::remove_cvref_t<T>, lua_CFunction> ||
         std::is_same_v<bbt::type::remove_cvref_t<T>, bbt::cxxlua::Nil>
@@ -31,36 +32,43 @@ constexpr bool CheckIsCanTransfromToLuaType()
 }
 
 template<typename T>
-struct GetTypeEnum
-{ static const LUATYPE type = LUATYPE::LUATYPE_NONE; };
+struct __ToLuaType
+{ static constexpr LUATYPE type = LUATYPE::LUATYPE_NONE; };
 
 template<>
-struct GetTypeEnum<std::string>
-{ static const LUATYPE type = LUATYPE::LUATYPE_CSTRING; };
+struct __ToLuaType<std::string>
+{ static constexpr LUATYPE type = LUATYPE::LUATYPE_CSTRING; };
 
 template<>
-struct GetTypeEnum<char*>
-{ static const LUATYPE type = LUATYPE::LUATYPE_CSTRING; };
+struct __ToLuaType<char*>
+{ static constexpr LUATYPE type = LUATYPE::LUATYPE_CSTRING; };
 
 template<>
-struct GetTypeEnum<int>
-{ static const LUATYPE type = LUATYPE::LUATYPE_NUMBER; };
+struct __ToLuaType<const char*>
+{ static constexpr LUATYPE type = LUATYPE::LUATYPE_CSTRING; };
 
 template<>
-struct GetTypeEnum<double>
-{ static const LUATYPE type = LUATYPE::LUATYPE_NUMBER; };
+struct __ToLuaType<int>
+{ static constexpr LUATYPE type = LUATYPE::LUATYPE_NUMBER; };
 
 template<>
-struct GetTypeEnum<lua_CFunction>
-{ static const LUATYPE type = LUATYPE::LUATYPE_FUNCTION; };
+struct __ToLuaType<double>
+{ static constexpr LUATYPE type = LUATYPE::LUATYPE_NUMBER; };
 
 template<>
-struct GetTypeEnum<bbt::cxxlua::detail::LuaRef>
-{ static const LUATYPE type = LUATYPE::LUATYPE_STACKREF; };
+struct __ToLuaType<lua_CFunction>
+{ static constexpr LUATYPE type = LUATYPE::LUATYPE_FUNCTION; };
 
 template<>
-struct GetTypeEnum<bbt::cxxlua::Nil>
-{ static const LUATYPE type = LUATYPE::LUATYPE_NIL; };
+struct __ToLuaType<bbt::cxxlua::detail::LuaRef>
+{ static constexpr LUATYPE type = LUATYPE::LUATYPE_STACKREF; };
+
+template<>
+struct __ToLuaType<bbt::cxxlua::Nil>
+{ static constexpr LUATYPE type = LUATYPE::LUATYPE_NIL; };
+
+template<typename T>
+inline constexpr LUATYPE luatype_v = __ToLuaType<bbt::type::remove_cvref_t<T>>::type;
 
 inline void DbgLuaStack(lua_State* l) {
     int type;

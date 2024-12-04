@@ -22,3 +22,7 @@ add_test(NAME Test_luavm COMMAND Test_luavm)
 add_executable(Test_stack Test_stack.cc)
 target_link_libraries(Test_stack ${MY_COMM_LIB})
 add_test(NAME Test_stack COMMAND Test_stack)
+
+add_executable(Test_luatype Test_luatype.cc)
+target_link_libraries(Test_luatype ${MY_COMM_LIB})
+add_test(NAME Test_luatype COMMAND Test_luatype)

@@ -168,6 +168,7 @@ std::optional<LuaErr> LuaStack::Push2GlobalByName(const std::string& template_na
 void LuaStack::NewLuaTable()
 {
     lua_newtable(Context());
+    DbgLuaStack(Context());
 }
 
 int LuaStack::NewMetatable(const std::string& name)
@@ -583,8 +584,10 @@ std::pair<std::optional<LuaErr>, LUATYPE> LuaStack::__CheckTable(const std::stri
         return {LuaErr("", ERRCODE::Type_UnExpected), (LUATYPE)type};
     }
 
-    lua_pushstring(Context(), field_name.c_str());
-    if(lua_gettable(Context(), -2)) {
+    Assert(lua_pushstring(Context(), field_name.c_str()));
+    int err = lua_gettable(Context(), -2);
+    DbgLuaStack(Context());
+    if(err != LUA_OK) {
         return {LuaErr(lua_tostring(Context(), -1), ERRCODE::VM_ErrLuaRuntime), (LUATYPE)type};
     }
 

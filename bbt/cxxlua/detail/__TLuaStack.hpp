@@ -26,7 +26,7 @@ template<typename T>
 std::optional<LuaErr> LuaStack::SetGlobalValue(const std::string& value_name, T value)
 {
     /* 类型检测 */
-    constexpr LUATYPE tp = GetTypeEnum<T>::type;
+    constexpr LUATYPE tp = luatype_v<T>;
     static_assert(CheckIsCanTransfromToLuaType<T>());
     static_assert(( tp > LUATYPE::LUATYPE_NONE &&
                     tp < LUATYPE::Other),
@@ -56,7 +56,9 @@ std::optional<LuaErr> LuaStack::__Insert(KeyType key, ValueType value)
 
     Push(key);
     Push(value);
+    DbgLuaStack(Context());
     lua_settable(Context(), -3);
+    DbgLuaStack(Context());
 
     return std::nullopt;
 }
@@ -64,8 +66,8 @@ std::optional<LuaErr> LuaStack::__Insert(KeyType key, ValueType value)
 template<typename KeyType, typename ValueType>
 std::optional<LuaErr> LuaStack::Insert2Table(KeyType key, ValueType value)
 {
-    int top_type = lua_type(Context(), -1);
-    int value_type = GetTypeEnum<bbt::type::remove_cvref_t<ValueType>>::type;
+    LUATYPE top_type = (LUATYPE)lua_type(Context(), -1);
+    int value_type = luatype_v<ValueType>;
 
     /* check 插入值的类型是否为合法的类型 */
     if (top_type != LUATYPE::LUATYPE_LUATABLE ||
