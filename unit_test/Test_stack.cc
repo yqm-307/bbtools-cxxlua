@@ -105,15 +105,16 @@ BOOST_AUTO_TEST_CASE(t_table_opt)
     // BOOST_ASSERT(!stack->DoScript(lua_script_example1));
 
     stack->NewLuaTable();
+    auto [getref_err, ref] = stack->GetRef(-1);
+    BOOST_ASSERT(!getref_err);
+
+    BOOST_ASSERT(!stack->SetGlobalValue("tb", ref.value()));
+
     BOOST_ASSERT(!stack->Insert2Table("key1", "i am value1"));
     BOOST_ASSERT(!stack->Insert2Table("key2", 1));
     BOOST_ASSERT(!stack->Insert2Table("key3", cfunc_add));
 
-    auto [getref_err, ref] = stack->GetRef(-1);
-    BOOST_ASSERT(!getref_err);
-    BOOST_ASSERT(!stack->SetGlobalValue("tb", ref.value()));
-
-    stack->DoScript(R"( for k, v in pairs(tb) do print("xxx", k, v) end )");
+    // stack->DoScript(R"( for k, v in pairs(tb) do print("xxx", k, v, type(v)) end )");
 
     BOOST_CHECK_EQUAL(stack->Size(), 1);
 

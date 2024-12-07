@@ -79,6 +79,9 @@ public:
 
     /* 判断ref是否合法 */
     bool IsSafeRef(const LuaRef& ref);
+
+    /* 输出栈信息 */
+    void DbgInfo();
 #pragma endregion
 
     /**

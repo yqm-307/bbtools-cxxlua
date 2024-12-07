@@ -56,9 +56,7 @@ std::optional<LuaErr> LuaStack::__Insert(KeyType key, ValueType value)
 
     Push(key);
     Push(value);
-    DbgLuaStack(Context());
     lua_settable(Context(), -3);
-    DbgLuaStack(Context());
 
     return std::nullopt;
 }
@@ -66,7 +64,7 @@ std::optional<LuaErr> LuaStack::__Insert(KeyType key, ValueType value)
 template<typename KeyType, typename ValueType>
 std::optional<LuaErr> LuaStack::Insert2Table(KeyType key, ValueType value)
 {
-    LUATYPE top_type = (LUATYPE)lua_type(Context(), -1);
+    LUATYPE top_type = GetType(-1);
     int value_type = luatype_v<ValueType>;
 
     /* check 插入值的类型是否为合法的类型 */

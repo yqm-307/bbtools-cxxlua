@@ -168,7 +168,6 @@ std::optional<LuaErr> LuaStack::Push2GlobalByName(const std::string& template_na
 void LuaStack::NewLuaTable()
 {
     lua_newtable(Context());
-    DbgLuaStack(Context());
 }
 
 int LuaStack::NewMetatable(const std::string& name)
@@ -225,6 +224,11 @@ bool LuaStack::IsSafeRef(const LuaRef& ref)
     }
 
     return true;
+}
+
+void LuaStack::DbgInfo()
+{
+    DbgLuaStack(Context());
 }
 
 void LuaStack::Pop(int n)
@@ -585,14 +589,13 @@ std::pair<std::optional<LuaErr>, LUATYPE> LuaStack::__CheckTable(const std::stri
     }
 
     Assert(lua_pushstring(Context(), field_name.c_str()));
-    int err = lua_gettable(Context(), -2);
-    DbgLuaStack(Context());
-    if(err != LUA_OK) {
-        return {LuaErr(lua_tostring(Context(), -1), ERRCODE::VM_ErrLuaRuntime), (LUATYPE)type};
+    lua_gettable(Context(), -2);
+    auto value_type = GetType(-1);
+    if(CXXLUAInvalidType(type)) {
+        return {LuaErr(lua_tostring(Context(), -1), ERRCODE::VM_ErrLuaRuntime), value_type};
     }
 
-    type = lua_type(Context(), -1);
-    return {std::nullopt, (LUATYPE)type};
+    return {std::nullopt, value_type};
 }
 
 std::pair<std::optional<LuaErr>, LUATYPE> LuaStack::__CheckTable(int index_value)
