@@ -70,4 +70,4 @@ typename LuaClass<T>::FuncsMap LuaClass<T>::m_funcs{};
 
 } // namespace bbt::cxxlua::detail
 
-#include <bbt/cxxlua/detail/__TLuaClass.hpp>
+#include <bbt/cxxlua/detail/template/__TLuaClass.hpp>

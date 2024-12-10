@@ -54,4 +54,4 @@ private:
 
 } // namespace bbt::cxxlua::detail
 
-#include <bbt/cxxlua/detail/__TLuaRef.hpp>
+#include <bbt/cxxlua/detail/template/__TLuaRef.hpp>

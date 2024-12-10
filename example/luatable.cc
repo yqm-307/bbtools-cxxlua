@@ -2,7 +2,7 @@
 #include <queue>
 
 class MsgQueue:
-    public bbt::cxxlua::LuaTable
+    public bbt::cxxlua::LuaTableHelper
 {
 public:
     static std::shared_ptr<MsgQueue> GetInst() {

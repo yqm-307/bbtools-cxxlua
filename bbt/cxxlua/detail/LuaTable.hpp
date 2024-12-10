@@ -11,8 +11,8 @@ namespace bbt::cxxlua::detail
  * 考虑新的方案。
  * 
  */
-class LuaTable:
-    std::enable_shared_from_this<LuaTable>
+class LuaTableHelper:
+    std::enable_shared_from_this<LuaTableHelper>
 {
     friend class LuaStack;
 public:
@@ -23,12 +23,12 @@ public:
     typedef std::function<std::optional<LuaErr>(std::unique_ptr<LuaStack>)> TableInitFunction;
 
 public:
-    LuaTable() {}
-    explicit LuaTable(const LuaTable& other) { CopyFrom(&other); }
-    ~LuaTable() {}
+    LuaTableHelper() {}
+    explicit LuaTableHelper(const LuaTableHelper& other) { CopyFrom(&other); }
+    ~LuaTableHelper() {}
 
     /* 用table覆盖自己 */
-    void CopyFrom(const LuaTable* table)
+    void CopyFrom(const LuaTableHelper* table)
     {
         m_cfunction_set = table->m_cfunction_set;
         m_field_set = table->m_field_set;
@@ -42,6 +42,8 @@ public:
         m_table_init_func = table_init_func;
         return std::nullopt;
     }
+
+    bool IsEmpty() const;
 
 protected:
     std::optional<LuaErr> InitFields(const FieldSet& fields)

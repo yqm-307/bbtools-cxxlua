@@ -120,7 +120,7 @@ std::optional<LuaErr> LuaStack::LoadLuaLib()
     return std::nullopt;
 }
 
-std::optional<LuaErr> LuaStack::RegistLuaTable(std::shared_ptr<LuaTable> table)
+std::optional<LuaErr> LuaStack::RegistLuaTable(std::shared_ptr<LuaTableHelper> table)
 {
     auto [it, ok] = m_table_template_map.insert(std::make_pair(table->m_table_name, table));
 

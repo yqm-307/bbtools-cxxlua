@@ -29,7 +29,7 @@ BOOST_AUTO_TEST_CASE(t_global_value_read_write_int)
     RET_OPTION_ERROR(lvm.GetGlobalValue("a", lua_a), do_get_a_err);
 
     int number;
-    BOOST_ASSERT(lua_a.GetValue(number));
+    BOOST_ASSERT(!lua_a.GetValue(number));
 
     BOOST_CHECK_EQUAL(number, value_a);
     RET_OPTION_ERROR(lvm.SetGlobalValue("a", bbt::cxxlua::nil), do_set_a_nil_err);
@@ -50,7 +50,7 @@ BOOST_AUTO_TEST_CASE(t_global_value_read_write_string)
     RET_OPTION_ERROR(lvm.GetGlobalValue("a", lua_a), do_get_a_err);
 
     std::string str;
-    BOOST_ASSERT(lua_a.GetValue(str));
+    BOOST_ASSERT(!lua_a.GetValue(str));
 
     BOOST_CHECK_EQUAL(str, value_a);
     RET_OPTION_ERROR(lvm.SetGlobalValue("a", bbt::cxxlua::nil), do_set_a_nil_err);
@@ -72,7 +72,7 @@ BOOST_AUTO_TEST_CASE(t_global_value_read_write_double)
     RET_OPTION_ERROR(lvm.GetGlobalValue("a", lua_a), do_get_a_err);
 
     double number;
-    BOOST_ASSERT(lua_a.GetValue(number));
+    BOOST_ASSERT(!lua_a.GetValue(number));
 
     BOOST_CHECK_EQUAL(number, value_a);
     RET_OPTION_ERROR(lvm.SetGlobalValue("a", bbt::cxxlua::nil), do_set_a_nil_err);

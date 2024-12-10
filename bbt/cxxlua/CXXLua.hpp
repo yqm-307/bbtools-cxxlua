@@ -23,7 +23,7 @@ template<typename CXXClass>
 using LuaClass = bbt::cxxlua::detail::LuaClass<CXXClass>;
 
 typedef bbt::cxxlua::detail::LuaErr LuaErr;
-typedef bbt::cxxlua::detail::LuaTable LuaTable;
+typedef bbt::cxxlua::detail::LuaTableHelper LuaTableHelper;
 
 
 } // namespace bbt::cxxlua

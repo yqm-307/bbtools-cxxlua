@@ -166,7 +166,7 @@ public:
     template<typename KeyType, typename ValueType>
     std::optional<LuaErr> Insert2Table(KeyType key, ValueType value);
 
-    std::optional<LuaErr> RegistLuaTable(std::shared_ptr<LuaTable> table);
+    std::optional<LuaErr> RegistLuaTable(std::shared_ptr<LuaTableHelper> table);
 
     std::optional<LuaErr> Push2GlobalByName(const std::string& template_name, const std::string& global_name);
 
@@ -221,7 +221,7 @@ public:
      * @return std::optional<LuaErr> 
      */
     template<typename ...Args>
-    std::optional<LuaErr> GetByKey4Table(LuaValue& value, Args ...args)
+    std::optional<LuaErr> GetValue4Table(LuaValue& value, Args ...args)
     {
         return _GetByKey4Table(value, args...);
     }
@@ -333,9 +333,9 @@ private:
 
 private:
     lua_State* lua{nullptr};
-    std::unordered_map<std::string, std::shared_ptr<LuaTable>> m_table_template_map;
+    std::unordered_map<std::string, std::shared_ptr<LuaTableHelper>> m_table_template_map;
 };
 
 }
 
-#include <bbt/cxxlua/detail/__TLuaStack.hpp>
+#include <bbt/cxxlua/detail/template/__TLuaStack.hpp>

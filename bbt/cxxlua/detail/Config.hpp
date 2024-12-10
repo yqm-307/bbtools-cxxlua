@@ -53,10 +53,11 @@ namespace detail
 class LuaErr;
 class LuaState;
 class LuaVM;
+class LuaVmImpl;
 class LuaStack;
 class LuaValue;
 class LuaRef;
-class LuaTable;
+class LuaTableHelper;
 
 typedef std::optional<LuaErr>   LuaErrOpt; 
 typedef std::optional<LuaValue> LuaValueOpt;

@@ -43,4 +43,4 @@ private:
 
 }
 
-#include <bbt/cxxlua/detail/__TLuaValue.hpp>
+#include <bbt/cxxlua/detail/template/__TLuaValue.hpp>

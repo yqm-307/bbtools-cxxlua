@@ -23,7 +23,8 @@ constexpr bool CheckIsCanTransfromToLuaType()
         std::is_same_v<bbt::type::remove_cvref_t<T>, const char*> ||
         std::is_same_v<bbt::type::remove_cvref_t<T>, bbt::cxxlua::detail::LuaRef> ||
         std::is_same_v<bbt::type::remove_cvref_t<T>, lua_CFunction> ||
-        std::is_same_v<bbt::type::remove_cvref_t<T>, bbt::cxxlua::Nil>
+        std::is_same_v<bbt::type::remove_cvref_t<T>, bbt::cxxlua::Nil> ||
+        std::is_same_v<bbt::type::remove_cvref_t<T>, bbt::cxxlua::detail::LuaTableHelper>
     ) {
         return true;
     } else {
