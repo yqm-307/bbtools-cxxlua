@@ -1,5 +1,4 @@
 #include <bbt/cxxlua/detail/impl/LuaVMImpl.hpp>
-#include <bbt/cxxlua/detail/LuaErr.hpp>
 #include <bbt/cxxlua/detail/LuaRef.hpp>
 
 namespace bbt::cxxlua::detail

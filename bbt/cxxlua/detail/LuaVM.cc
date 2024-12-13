@@ -1,4 +1,5 @@
 #include <bbt/cxxlua/detail/LuaVM.hpp>
+#include <bbt/cxxlua/detail/LuaStack.hpp>
 #include <bbt/cxxlua/detail/LuaRef.hpp>
 #include <bbt/cxxlua/detail/impl/LuaVMImpl.hpp>
 
@@ -12,6 +13,17 @@ LuaVM::LuaVM()
 
 LuaVM::~LuaVM()
 {
+}
+
+LuaVM::LuaVM(LuaVM&& vm)
+{
+    m_impl = std::move(vm.m_impl);
+}
+
+LuaVM& LuaVM::operator=(LuaVM&& vm)
+{
+    m_impl = std::move(vm.m_impl);
+    return *this;
 }
 
 std::optional<LuaErr> LuaVM::LoadLuaLibrary()
@@ -56,26 +68,9 @@ std::optional<LuaErr> LuaVM::GetGlobalValue(const std::string& global_value, Lua
     return Pop(value);
 }
 
-std::optional<LuaErr> LuaVM::RegistATableTemplate(std::shared_ptr<LuaTableHelper> table)
+std::shared_ptr<LuaStack> LuaVM::GetStack() const
 {
-    if (!table) {
-        return LuaErr("table is null!", ERRCODE::Comm_Failed);
-    }
-
-    return m_impl->m_stack->RegistLuaTable(table);
-}
-
-std::optional<LuaErr> LuaVM::PushAGlobalTableByName(
-    const std::string& table_template_name,
-    const std::string& global_table_name)
-{
-    auto err = m_impl->m_stack->Push2GlobalByName(table_template_name, global_table_name);
-
-    if (err != std::nullopt) {
-        return err;
-    }
-
-    return std::nullopt;
+    return m_impl->m_stack;
 }
 
 

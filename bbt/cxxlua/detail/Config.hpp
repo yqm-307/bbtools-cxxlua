@@ -57,7 +57,6 @@ class LuaVmImpl;
 class LuaStack;
 class LuaValue;
 class LuaRef;
-class LuaTableHelper;
 
 typedef std::optional<LuaErr>   LuaErrOpt; 
 typedef std::optional<LuaValue> LuaValueOpt;

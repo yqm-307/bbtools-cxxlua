@@ -1,6 +1,6 @@
 #pragma once
-#include "Config.hpp"
 #include <bbt/base/type/type_traits.hpp>
+#include <bbt/cxxlua/detail/Config.hpp>
 
 namespace bbt::cxxlua::detail
 {
@@ -23,8 +23,7 @@ constexpr bool CheckIsCanTransfromToLuaType()
         std::is_same_v<bbt::type::remove_cvref_t<T>, const char*> ||
         std::is_same_v<bbt::type::remove_cvref_t<T>, bbt::cxxlua::detail::LuaRef> ||
         std::is_same_v<bbt::type::remove_cvref_t<T>, lua_CFunction> ||
-        std::is_same_v<bbt::type::remove_cvref_t<T>, bbt::cxxlua::Nil> ||
-        std::is_same_v<bbt::type::remove_cvref_t<T>, bbt::cxxlua::detail::LuaTableHelper>
+        std::is_same_v<bbt::type::remove_cvref_t<T>, bbt::cxxlua::Nil>
     ) {
         return true;
     } else {

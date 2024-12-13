@@ -1,5 +1,4 @@
 #include <bbt/cxxlua/CXXLua.hpp>
-#include <optional>
 
 #define IF_NOT_EXIT(err, handle) \
 auto err = handle; \

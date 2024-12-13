@@ -1,22 +1,21 @@
 #pragma once
-#include "LuaErr.hpp"
-#include "LuaStack.hpp"
 #include <vector>
+#include <bbt/base/templateutil/Noncopyable.hpp>
+#include <bbt/cxxlua/detail/LuaErr.hpp>
 
 
 namespace bbt::cxxlua::detail
 {
 
-class LuaVM
+class LuaVM:
+    bbt::templateutil::noncopyable
 {
 public:
-    LuaVM(LuaVM&& vm);
-    LuaVM(const LuaVM&& vm);
     LuaVM();
     ~LuaVM();
 
+    LuaVM(LuaVM&& vm);
     LuaVM& operator=(LuaVM&& vm);
-    LuaVM& operator=(const LuaVM&& vm);
 
 public: /* high level api */
 
@@ -59,14 +58,6 @@ public: /* LuaClass 相关接口 */
     /* 在lua中注册 c++ class */
     template<typename CXXClass>
     CXXLUA_API std::optional<LuaErr> RegistClass();
-public: /* LuaTableHelper 相关接口 */
-
-    CXXLUA_API LABEL_LUATABLE std::optional<LuaErr> RegistATableTemplate(std::shared_ptr<LuaTableHelper> table);
-
-    /* 将一个已经存在的表，push到lua vm的全局表中，并以global_table_name命名 */
-    CXXLUA_API LABEL_LUATABLE std::optional<LuaErr> PushAGlobalTableByName(
-        const std::string& table_template_name,
-        const std::string& global_table_name);
 
 protected: /* 表操作 */
     CXXLUA_API std::optional<LuaErr> ExistGlobalFunc(const std::string& funcname);

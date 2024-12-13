@@ -15,13 +15,15 @@ public:
     LuaVmImpl& operator=(LuaVmImpl&& impl);
     LuaVmImpl& operator=(const LuaVmImpl& impl);
 
-    template<typename TValue>
-    std::optional<LuaErr>   Push(TValue value);
+    LUATYPE                 GetType(int index);
+    int                     ToAbsIndex(int index);
+    int                     StackSize();
 
     template<typename TValue>
-    std::optional<LuaErr>   Pop(TValue& value);
+    LuaErrOpt               Push(TValue value);
 
-    // CXXLUA_API LOW_LEVEL std::optional<LuaErr> GetTopType(LuaRef);
+    template<typename TValue>
+    LuaErrOpt               Pop(TValue& value);
 
     /**
      * @brief 获取栈上index位置的 LuaRef 对象

@@ -2,7 +2,6 @@
 #include <bbt/base/file/FileHelper.hpp>
 #include <bbt/cxxlua/detail/TypeHelper.hpp>
 #include <bbt/cxxlua/detail/LuaErr.hpp>
-#include <bbt/cxxlua/detail/LuaTable.hpp>
 #include <bbt/cxxlua/detail/LuaValue.hpp>
 
 namespace bbt::cxxlua::detail
@@ -68,7 +67,7 @@ public:
     LuaRef GetTop();
 
     /* 获取栈上idx处元素类型 */
-    LUATYPE GetType(const int& index);
+    LUATYPE GetType(int index);
     LUATYPE GetType(const LuaRef& ref);
 
     /* 获取栈长度 */
@@ -165,12 +164,6 @@ public:
      */
     template<typename KeyType, typename ValueType>
     std::optional<LuaErr> Insert2Table(KeyType key, ValueType value);
-
-    std::optional<LuaErr> RegistLuaTable(std::shared_ptr<LuaTableHelper> table);
-
-    std::optional<LuaErr> Push2GlobalByName(const std::string& template_name, const std::string& global_name);
-
-
 
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -333,7 +326,6 @@ private:
 
 private:
     lua_State* lua{nullptr};
-    std::unordered_map<std::string, std::shared_ptr<LuaTableHelper>> m_table_template_map;
 };
 
 }

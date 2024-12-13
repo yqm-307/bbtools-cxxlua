@@ -120,51 +120,6 @@ std::optional<LuaErr> LuaStack::LoadLuaLib()
     return std::nullopt;
 }
 
-std::optional<LuaErr> LuaStack::RegistLuaTable(std::shared_ptr<LuaTableHelper> table)
-{
-    auto [it, ok] = m_table_template_map.insert(std::make_pair(table->m_table_name, table));
-
-    if (!ok) {
-        return LuaErr("table already existed!", ERRCODE::Comm_Failed);
-    }
-
-    return std::nullopt;
-}
-
-std::optional<LuaErr> LuaStack::Push2GlobalByName(const std::string& template_name, const std::string& global_name)
-{
-    auto it = m_table_template_map.find(template_name);    
-    if (it == m_table_template_map.end()) {
-        return LuaErr("key not found!", ERRCODE::Comm_Failed);
-    }
-
-    auto table = it->second;
-    
-    /* 创建一个lua table */
-    NewLuaTable();
-    auto ref = GetTop();
-
-    if (!table->m_cfunction_set.empty()) {
-        for (auto&& pair : table->m_cfunction_set) {
-            Insert2Table(pair.first.c_str(), pair.second);
-        }
-    }
-
-    if (!table->m_field_set.empty()) {
-        for (auto&& pair : table->m_field_set) {
-            Insert2Table(pair.first.c_str(), pair.second);
-        }
-    }
-
-    SetGlobalValue(table->m_table_name, ref);
-
-    if (table->m_table_init_func) {
-        return table->m_table_init_func(std::unique_ptr<LuaStack>(this));
-    }
-
-    return std::nullopt;
-}
-
 void LuaStack::NewLuaTable()
 {
     lua_newtable(Context());
@@ -196,7 +151,7 @@ LuaRef LuaStack::GetTop()
     return LuaRef{weak_from_this(), lua_gettop(Context())};
 }
 
-LUATYPE LuaStack::GetType(const int& index)
+LUATYPE LuaStack::GetType(int index)
 {
     return (LUATYPE)lua_type(Context(), index);
 }
