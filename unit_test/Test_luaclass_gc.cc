@@ -5,19 +5,18 @@
 #include <bbt/cxxlua/CXXLua.hpp>
 
 class Object:
-    bbt::cxxlua::LuaClass<Object>
+    public bbt::cxxlua::LuaClass<Object>
 {
 public:
     Object()  { m_count++; }
     ~Object() { m_count--; }
 
-    static std::optional<bbt::cxxlua::LuaErr> CXXLuaInit(std::shared_ptr<bbt::cxxlua::detail::LuaStack>& stack)
+    static std::optional<bbt::cxxlua::LuaErr> CXXLuaInit()
     {
         InitClass("GCObject");
         InitConstructor([](lua_State* l){
             return Object::cxx2lua_ctor(l);
         });
-        Register(stack);
         return std::nullopt;
     }
 
@@ -33,27 +32,27 @@ int Object::m_count = 0;
 
 BOOST_AUTO_TEST_SUITE(CXX_Regist_LuaClass_GC)
 
-const char* luascript_t_gc = " \
-ObjectPool = {} \
-\
-function Create() \
-    for i = 1, math.random(10000), 1 do \
-        table.insert(ObjectPool, GCObject:new()) \
-    end \
-end \
-\
-function Release() \
-    ObjectPool = {} \
-end \
-\
-function Main() \
-    for i = 1, 100, 1 do \
-        Create() \
-        Release() \
-    end \
-    collectgarbage(\"collect\") \
-end \
-";
+std::string luascript_t_gc = R"(
+ObjectPool = {}
+
+function Create()
+    for i = 1, math.random(10000), 1 do
+        table.insert(ObjectPool, GCObject:new())
+    end
+end
+
+function Release()
+    ObjectPool = {}
+end
+
+function Main()
+    for i = 1, 100, 1 do
+        Create()
+        Release()
+    end
+    collectgarbage("collect")
+end
+)";
 
 BOOST_AUTO_TEST_CASE(t_gc)
 {

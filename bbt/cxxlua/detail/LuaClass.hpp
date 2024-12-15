@@ -25,6 +25,8 @@ public:
     LuaClass();
     ~LuaClass();
 
+    /* 注册函数 */
+    static bool Register(std::shared_ptr<LuaStack>& stack);
 protected: /* 给派生类用来注册函数（lua绑定类需要关注） */
     /* 添加一些成员函数 */
     static bool InitFuncs(std::initializer_list<FuncsMapEntry> list);
@@ -32,11 +34,9 @@ protected: /* 给派生类用来注册函数（lua绑定类需要关注） */
     static bool InitClass(const std::string& classname);
     /* 设置c++中初始化的构造函数（lua中的class.new(...)，需要处理参数) */
     static bool InitConstructor(const ConstructFunction& constructor);
-    /* 注册函数 */
-    static bool Register(std::shared_ptr<LuaStack>& stack);
 
     /* 派生类需要实现此函数，用来注册lua类 */
-    // static void CXXLuaInit(std::unique_ptr<bbt::cxxlua::detail::LuaStack>& stack);
+    // static void CXXLuaInit();
 
 private: /* 自动生成的函数（使用时无需关心） */
 

@@ -79,13 +79,13 @@ bool LuaClass<CXXClassType>::Register(std::shared_ptr<LuaStack>& stack)
     }
 
     stack->Copy2Top(mt_table_ref);
-    assert(stack->Insert2Table("__metatable",   opts_index_table) == std::nullopt);
-    assert(stack->Insert2Table("__index",       opts_index_table) == std::nullopt);
-    assert(stack->Insert2Table("__tostring",    cxx2lua_to_string) == std::nullopt);
-    assert(stack->Insert2Table("__gc",          cxx2lua_destructor) == std::nullopt);
+    assert(stack->SetTbField("__metatable",   opts_index_table) == std::nullopt);
+    assert(stack->SetTbField("__index",       opts_index_table) == std::nullopt);
+    assert(stack->SetTbField("__tostring",    cxx2lua_to_string) == std::nullopt);
+    assert(stack->SetTbField("__gc",          cxx2lua_destructor) == std::nullopt);
 
     stack->Copy2Top(opts_index_table);
-    assert(stack->Insert2Table("new",           cxx2lua_constructor) == std::nullopt);
+    assert(stack->SetTbField("new",           cxx2lua_constructor) == std::nullopt);
     for (auto&& func : m_funcs) {
         auto l = stack->Context();
         lua_pushstring(l, func.first.c_str());

@@ -29,8 +29,13 @@ std::optional<LuaErr> LuaVM::CallLuaFunction(
 
 template<typename CXXClass>
 std::optional<LuaErr> LuaVM::RegistClass()
-{ 
-    return CXXClass::CXXLuaInit(m_impl->m_stack);
+{
+    auto err = CXXClass::CXXLuaInit();
+    if (err != std::nullopt)
+        return err;
+
+    CXXClass::Register(m_impl->m_stack);
+    return std::nullopt;
 }
 
 template<typename ...Args>

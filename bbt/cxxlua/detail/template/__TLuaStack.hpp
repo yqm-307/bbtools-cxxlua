@@ -48,7 +48,7 @@ void LuaStack::PushMany(T arg, Args ...args)
 
 
 template<typename KeyType, typename ValueType>
-std::optional<LuaErr> LuaStack::__Insert(KeyType key, ValueType value) 
+LuaErrOpt LuaStack::__Insert(KeyType key, ValueType value, int table_index) const
 {
     if (!__IsSafeValue(value)) {
         return LuaErr("", ERRCODE::Stack_ErrIndex);
@@ -56,16 +56,18 @@ std::optional<LuaErr> LuaStack::__Insert(KeyType key, ValueType value)
 
     Push(key);
     Push(value);
-    lua_settable(Context(), -3);
+    lua_settable(Context(), table_index);
 
     return std::nullopt;
 }
 
 template<typename KeyType, typename ValueType>
-std::optional<LuaErr> LuaStack::Insert2Table(KeyType key, ValueType value)
+LuaErrOpt LuaStack::SetTbField(KeyType key, ValueType value, int table_index) const
 {
     LUATYPE top_type = GetType(-1);
     int value_type = luatype_v<ValueType>;
+
+    /* TODO check key 合法性 */
 
     /* check 插入值的类型是否为合法的类型 */
     if (top_type != LUATYPE::LUATYPE_LUATABLE ||
@@ -76,8 +78,14 @@ std::optional<LuaErr> LuaStack::Insert2Table(KeyType key, ValueType value)
     }
 
     /* 确保类型正确，执行此操作必定成功 */
-    __Insert(key, value);
+    __Insert(key, value, table_index);
     return std::nullopt;
+}
+
+template<typename TKey>
+LuaRetPair<LUATYPE> LuaStack::GetTbField(int table_abs_index, const TKey& key) const
+{
+    return __CheckTable(table_abs_index, key);
 }
 
 template<typename ... Args>

@@ -110,9 +110,9 @@ BOOST_AUTO_TEST_CASE(t_table_opt)
 
     BOOST_ASSERT(!stack->SetGlobalValue("tb", ref.value()));
 
-    BOOST_ASSERT(!stack->Insert2Table("key1", "i am value1"));
-    BOOST_ASSERT(!stack->Insert2Table("key2", 1));
-    BOOST_ASSERT(!stack->Insert2Table("key3", cfunc_add));
+    BOOST_ASSERT(!stack->SetTbField("key1", "i am value1"));
+    BOOST_ASSERT(!stack->SetTbField("key2", 1));
+    BOOST_ASSERT(!stack->SetTbField("key3", cfunc_add));
 
     // stack->DoScript(R"( for k, v in pairs(tb) do print("xxx", k, v, type(v)) end )");
 
@@ -122,7 +122,7 @@ BOOST_AUTO_TEST_CASE(t_table_opt)
     {
         stack->GetGlobal("tb");
         std::string value1;
-        auto [pop_key1_err, type] = stack->Pop4Table("key1");
+        auto [pop_key1_err, type] = stack->GetTbField(stack->GetTop().GetAbsIndex(), "key1");
         BOOST_ASSERT(!pop_key1_err);
         BOOST_CHECK_EQUAL(stack->GetTop().GetType(), bbt::cxxlua::LUATYPE_CSTRING);
         auto [err, value] = stack->GetTop().GetValue();
@@ -134,7 +134,7 @@ BOOST_AUTO_TEST_CASE(t_table_opt)
 
     {
         int value2;
-        auto [pop_key2_err, type] = stack->Pop4Table("key2");
+        auto [pop_key2_err, type] = stack->GetTbField(stack->GetTop().GetAbsIndex(), "key2");
         BOOST_CHECK_EQUAL(stack->GetTop().GetType(), bbt::cxxlua::LUATYPE_NUMBER);
         auto [err, value] = stack->GetTop().GetValue();
         BOOST_ASSERT(!err);
@@ -145,7 +145,7 @@ BOOST_AUTO_TEST_CASE(t_table_opt)
 
     {
         lua_CFunction value3;
-        auto [pop_key3_err, type] = stack->Pop4Table("key3");
+        auto [pop_key3_err, type] = stack->GetTbField(stack->GetTop().GetAbsIndex(), "key3");
         BOOST_CHECK_EQUAL(stack->GetTop().GetType(), bbt::cxxlua::LUATYPE_FUNCTION);
         auto [err, value] = stack->GetTop().GetValue();
         BOOST_ASSERT(!err);

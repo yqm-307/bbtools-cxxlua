@@ -36,10 +36,16 @@ LUATYPE LuaRef::GetType() const
     return stack->GetType(m_index);
 }
 
-LuaRef::operator bool()
+LuaRef::operator bool() const
 {
     return CheckIndex(m_stack, m_index);
 }
+
+bool LuaRef::operator !() const
+{
+    return !CheckIndex(m_stack, m_index);
+}
+
 
 bool LuaRef::SetIndex(std::shared_ptr<LuaStack> stack, int index)
 {
@@ -74,7 +80,13 @@ int LuaRef::GetIndex() const
     return m_index;
 }
 
-int LuaRef::AbsIndex(int index)
+int LuaRef::GetAbsIndex() const
+{
+    return AbsIndex(m_index);
+}
+
+
+int LuaRef::AbsIndex(int index) const
 {
     auto stack = m_stack.lock();
     if (!stack)

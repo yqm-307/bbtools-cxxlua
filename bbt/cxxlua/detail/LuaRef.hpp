@@ -24,6 +24,7 @@ public:
      * @brief 获取栈上绝对索引
      */
     int  GetIndex() const;
+    int  GetAbsIndex() const;
 
     /**
      * @brief 获取类型
@@ -33,7 +34,8 @@ public:
     /**
      * @brief 当前引用是否存在于栈上
      */
-    operator bool();
+    operator bool() const;
+    bool operator!() const;
 
     LuaRetPair<LuaValueOpt> GetValue();
 
@@ -41,7 +43,7 @@ public:
     LuaErrOpt GetValue(T& value);
 private:
     /* 获取lua栈上的绝对索引 */
-    int AbsIndex(int index);
+    int AbsIndex(int index) const;
 
     /* 是否有效 */
     // static bool IsInvaild(std::weak_ptr<LuaStack> stack, int index);

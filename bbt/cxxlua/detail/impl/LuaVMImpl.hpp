@@ -15,7 +15,8 @@ public:
     LuaVmImpl& operator=(LuaVmImpl&& impl);
     LuaVmImpl& operator=(const LuaVmImpl& impl);
 
-    LUATYPE                 GetType(int index);
+    LUATYPE                 GetType(int index) const;
+    LUATYPE                 GetType(const LuaRef& ref) const;
     int                     ToAbsIndex(int index);
     int                     StackSize();
 
@@ -33,11 +34,21 @@ public:
      */
     LuaRetPair<LuaRefOpt>   GetRef(int index);
 
+    void                    NewTable() const;
+    LuaErrOpt               NewMetatable(const std::string& metatable_name) const;
+    LuaErrOpt               SetMetatable(const LuaRef& obj, const std::string& metatable_name) const;
+    void                    SetMetatable(const LuaRef& table , const LuaRef& metatable);
+
+    template<typename TKey>
+    LuaErrOpt               SetTbField(const LuaRef& table_ref, const TKey& key, const LuaRef& value_ref) const;
+    template<typename TKey>
+    LuaRetPair<LUATYPE>     GetTbField(const LuaRef& table_ref, const TKey& key) const;
+
+
     // LuaErrOpt               SetGlobal(const std::string& name, const LuaRef& ref);
     // LuaRetPair<LuaRefOpt>   GetGlobal(const std::string& name);
 
-    
-    // CXXLUA_API LOW_LEVEL std::optional<LuaErr> Insert2Table(const LuaRef& table);
+
     std::shared_ptr<LuaStack> m_stack;
 };
 

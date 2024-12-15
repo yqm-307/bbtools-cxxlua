@@ -57,49 +57,51 @@ public:
 
     /* 返回0说明元表已经存在，否则返回1并压入栈顶 */
     int NewMetatable(const std::string& name);
-
     int SetMetatable(int idx);
+    int SetMetatable(const std::string& name);
 
     /* 将idx处元素拷贝，并压入栈顶 */
-    std::optional<LuaErr> Copy2Top(const LuaRef& ref);
+    LuaErrOpt Copy2Top(const LuaRef& ref);
 
     /* 获取栈顶元素的idx */
     LuaRef GetTop();
 
     /* 获取栈上idx处元素类型 */
-    LUATYPE GetType(int index);
-    LUATYPE GetType(const LuaRef& ref);
+    LUATYPE GetType(int index) const;
+    LUATYPE GetType(const LuaRef& ref) const;
 
     /* 获取栈长度 */
-    size_t Size();
+    size_t Size() const;
 
     /* 栈是否为空 */
     bool Empty();
 
     /* 判断ref是否合法 */
-    bool IsSafeRef(const LuaRef& ref);
+    bool IsSafeRef(const LuaRef& ref) const;
 
     /* 输出栈信息 */
     void DbgInfo();
 #pragma endregion
 
-    /**
-     * @brief 用 index_value 索引栈顶的表，并将索引到的
-     *  值压入栈顶（如果存在、栈顶的值是表），否则返回错误
-     * 
-     * @param index_value 键值
-     * @return std::pair<std::optional<LuaErr>, LUATYPE> 
-     */
-    std::pair<std::optional<LuaErr>, LUATYPE> Pop4Table(int index_value);
+    template<typename TKey>
+    LuaRetPair<LUATYPE> GetTbField(int table_abs_index, const TKey& key) const;
+    // /**
+    //  * @brief 用 index_value 索引栈顶的表，并将索引到的
+    //  *  值压入栈顶（如果存在、栈顶的值是表），否则返回错误
+    //  * 
+    //  * @param index_value 键值
+    //  * @return LuaRetPair<LUATYPE>
+    //  */
+    // LuaRetPair<LUATYPE> GetTbField(int table, int index_value) const;
 
-    /**
-     * @brief 用 field_name 索引栈顶的表，并将索引到的
-     *  值压入栈顶（如果存在、栈顶的值是表），否则返回错误
-     * 
-     * @param field_name 键值
-     * @return std::pair<std::optional<LuaErr>, LUATYPE> 
-     */
-    std::pair<std::optional<LuaErr>, LUATYPE> Pop4Table(const std::string&  field_name);
+    // /**
+    //  * @brief 用 field_name 索引栈顶的表，并将索引到的
+    //  *  值压入栈顶（如果存在、栈顶的值是表），否则返回错误
+    //  * 
+    //  * @param field_name 键值
+    //  * @return LuaRetPair<LUATYPE>
+    //  */
+    // LuaRetPair<LUATYPE> GetTbField(int table, const std::string&  field_name) const;
 
     /**
      * @brief 从全局表获取一个值，如果值类型与LuaType相等则
@@ -163,7 +165,7 @@ public:
      * @return std::optional<LuaErr> 
      */
     template<typename KeyType, typename ValueType>
-    std::optional<LuaErr> Insert2Table(KeyType key, ValueType value);
+    LuaErrOpt SetTbField(KeyType key, ValueType value, int table_index = -3) const;
 
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -172,7 +174,7 @@ public:
 public:
 #pragma region // 栈操作
 
-    int AbsIndex(int index);
+    int AbsIndex(int index) const;
     LuaErrOpt CheckIndex(int index);
 
     // 读操作
@@ -236,19 +238,19 @@ public:
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 
-    lua_State* Context();
+    lua_State* Context() const;
 
     /* 栈操作 */
-    LUATYPE Push(int32_t value);
-    LUATYPE Push(int64_t value);
-    LUATYPE Push(uint32_t value);
-    LUATYPE Push(uint64_t value);
-    LUATYPE Push(double value);
-    LUATYPE Push(const std::string& value);
-    LUATYPE Push(const char* value);
-    LUATYPE Push(lua_CFunction cfunc);
-    LUATYPE Push(const LuaRef& lua_ref);
-    LUATYPE Push(const Nil& nil);
+    LUATYPE Push(int32_t value) const;
+    LUATYPE Push(int64_t value) const;
+    LUATYPE Push(uint32_t value) const;
+    LUATYPE Push(uint64_t value) const;
+    LUATYPE Push(double value) const;
+    LUATYPE Push(const std::string& value) const;
+    LUATYPE Push(const char* value) const;
+    LUATYPE Push(lua_CFunction cfunc) const;
+    LUATYPE Push(const LuaRef& lua_ref) const;
+    LUATYPE Push(const Nil& nil) const;
 
     void PushMany() {}
 
@@ -263,15 +265,15 @@ protected:
      * @return true 
      * @return false 
      */
-    bool __IsSafeValue(const LuaRef& ref);
-    bool __IsSafeValue(int ref);
-    bool __IsSafeValue(double ref);
-    bool __IsSafeValue(const std::string& ref);
-    bool __IsSafeValue(lua_CFunction ref);
+    bool __IsSafeValue(const LuaRef& ref) const;
+    bool __IsSafeValue(int ref) const;
+    bool __IsSafeValue(double ref) const;
+    bool __IsSafeValue(const std::string& ref) const;
+    bool __IsSafeValue(lua_CFunction ref) const;
 
 
     template<typename KeyType, typename ValueType>
-    std::optional<LuaErr> __Insert(KeyType key, ValueType value);
+    std::optional<LuaErr> __Insert(KeyType key, ValueType value, int table_index) const;
 
 
     /**
@@ -291,7 +293,7 @@ protected:
      * @param field_name 键的变量名/值
      * @return std::pair<std::optional<LuaErr>, LUATYPE> 
      */
-    std::pair<std::optional<LuaErr>, LUATYPE> __CheckTable(const std::string& field_name);
+    LuaRetPair<LUATYPE> __CheckTable(int table, const std::string& field_name) const;
 
     /**
      * @brief __CheckTable的重载，仅键类型不同
@@ -299,7 +301,7 @@ protected:
      * @param index_value 
      * @return std::pair<std::optional<LuaErr>, LUATYPE> 
      */
-    std::pair<std::optional<LuaErr>, LUATYPE> __CheckTable(int index_value);
+    LuaRetPair<LUATYPE> __CheckTable(int table, int index_value) const;
 
 
     /**

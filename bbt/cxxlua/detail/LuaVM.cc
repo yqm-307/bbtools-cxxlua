@@ -73,5 +73,14 @@ std::shared_ptr<LuaStack> LuaVM::GetStack() const
     return m_impl->m_stack;
 }
 
+LuaErrOpt LuaVM::Table_SetField(const LuaRef& table_ref, const std::string& key, const LuaRef& value_ref) const
+{
+    return m_impl->SetTbField(table_ref, key, value_ref);
+}
+
+LuaRetPair<LUATYPE> LuaVM::Table_GetField(const LuaRef& table_ref, const std::string& key) const
+{
+    return m_impl->GetTbField(table_ref, key);
+}
 
 }

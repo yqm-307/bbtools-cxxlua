@@ -82,16 +82,6 @@ std::optional<LuaErr> LuaStack::LoadFolder(const std::string& folder_path)
     return std::nullopt;
 }
 
-std::pair<std::optional<LuaErr>, LUATYPE> LuaStack::Pop4Table(int index_value)
-{
-    return __CheckTable(index_value);
-}
-
-std::pair<std::optional<LuaErr>, LUATYPE> LuaStack::Pop4Table(const std::string&  field_name)
-{
-    return __CheckTable(field_name);
-}
-
 std::optional<LuaErr> LuaStack::SetGlobalValue(const std::string& value_name, const LuaRef& value)
 {
     LUATYPE tp = value.GetType();
@@ -135,7 +125,14 @@ int LuaStack::SetMetatable(int idx)
     return lua_setmetatable(Context(), idx);
 }
 
-std::optional<LuaErr> LuaStack::Copy2Top(const LuaRef& ref)
+int LuaStack::SetMetatable(const std::string& name)
+{
+    luaL_setmetatable(Context(), name.c_str());
+    return 1;
+}
+
+
+LuaErrOpt LuaStack::Copy2Top(const LuaRef& ref)
 {
     int index = ref.GetIndex();
     if(index > Size()) {
@@ -151,17 +148,17 @@ LuaRef LuaStack::GetTop()
     return LuaRef{weak_from_this(), lua_gettop(Context())};
 }
 
-LUATYPE LuaStack::GetType(int index)
+LUATYPE LuaStack::GetType(int index) const
 {
     return (LUATYPE)lua_type(Context(), index);
 }
 
-LUATYPE LuaStack::GetType(const LuaRef& ref)
+LUATYPE LuaStack::GetType(const LuaRef& ref) const
 {
     return GetType(ref.GetIndex());
 }
 
-size_t LuaStack::Size()
+size_t LuaStack::Size() const
 {
     return lua_gettop(Context());
 }
@@ -171,7 +168,7 @@ bool LuaStack::Empty()
     return (Size() == 0);
 }
 
-bool LuaStack::IsSafeRef(const LuaRef& ref) 
+bool LuaStack::IsSafeRef(const LuaRef& ref) const
 {
     size_t size = Size();
     if(size < ref.GetIndex()) {
@@ -191,7 +188,7 @@ void LuaStack::Pop(int n)
     lua_pop(Context(), n);
 }
 
-int LuaStack::AbsIndex(int index)
+int LuaStack::AbsIndex(int index) const
 {
     return lua_absindex(Context(), index);
 }
@@ -419,41 +416,41 @@ LUATYPE LuaStack::GetGlobal(const std::string& value_name)
     return __GetGlobalValue(value_name);
 }
 
-lua_State* LuaStack::Context()
+lua_State* LuaStack::Context() const
 {
     return lua;
 }
 
 /* 栈操作 */
-LUATYPE LuaStack::Push(int32_t value) 
+LUATYPE LuaStack::Push(int32_t value) const
 {
     lua_pushinteger(Context(), value);
     return GetType(-1);
 }
 
-LUATYPE LuaStack::Push(int64_t value)
+LUATYPE LuaStack::Push(int64_t value) const
 {
     return Push((int32_t)value);
 }
 
-LUATYPE LuaStack::Push(uint32_t value)
+LUATYPE LuaStack::Push(uint32_t value) const
 {
     lua_pushinteger(Context(), value);
     return GetType(-1);
 }
 
-LUATYPE LuaStack::Push(uint64_t value)
+LUATYPE LuaStack::Push(uint64_t value) const
 {
     return Push((uint32_t)value);
 }
 
-LUATYPE LuaStack::Push(double value)
+LUATYPE LuaStack::Push(double value) const
 {
     lua_pushnumber(Context(), value);
     return GetType(-1);
 }
 
-LUATYPE LuaStack::Push(const std::string& value)
+LUATYPE LuaStack::Push(const std::string& value) const
 {
     const char* ret = lua_pushstring(Context(), value.c_str());
     if(ret == NULL) {
@@ -462,7 +459,7 @@ LUATYPE LuaStack::Push(const std::string& value)
     return GetType(-1);
 }
 
-LUATYPE LuaStack::Push(const char* value)
+LUATYPE LuaStack::Push(const char* value) const
 {
     const char* ret = lua_pushstring(Context(), value);
     if(ret == NULL) {
@@ -471,46 +468,46 @@ LUATYPE LuaStack::Push(const char* value)
     return GetType(-1);
 }
 
-LUATYPE LuaStack::Push(lua_CFunction cfunc)
+LUATYPE LuaStack::Push(lua_CFunction cfunc) const
 {
     lua_pushcfunction(Context(), cfunc);
     return GetType(-1);
 }
 
-LUATYPE LuaStack::Push(const LuaRef& lua_ref)
+LUATYPE LuaStack::Push(const LuaRef& lua_ref) const
 {
     lua_pushvalue(Context(), lua_ref.GetIndex());
     return GetType(-1);
 }
 
-LUATYPE LuaStack::Push(const Nil& nil)
+LUATYPE LuaStack::Push(const Nil& nil) const
 {
     lua_pushnil(Context());
     return LUATYPE::LUATYPE_NIL;
 }
 
 
-bool LuaStack::__IsSafeValue(const LuaRef& ref)
+bool LuaStack::__IsSafeValue(const LuaRef& ref) const
 {
     return IsSafeRef(ref);
 }
 
-bool LuaStack::__IsSafeValue(int ref)
+bool LuaStack::__IsSafeValue(int ref) const
 {
     return true;
 }
 
-bool LuaStack::__IsSafeValue(double ref)
+bool LuaStack::__IsSafeValue(double ref) const
 {
     return true;
 }
 
-bool LuaStack::__IsSafeValue(const std::string& ref)
+bool LuaStack::__IsSafeValue(const std::string& ref) const
 {
     return (!ref.empty());
 }
 
-bool LuaStack::__IsSafeValue(lua_CFunction ref)
+bool LuaStack::__IsSafeValue(lua_CFunction ref) const
 {
     return (ref != nullptr);
 }
@@ -536,7 +533,7 @@ std::optional<LuaErr> LuaStack::__SetGlobalValue(const std::string& value_name)
     return std::nullopt;
 }
 
-std::pair<std::optional<LuaErr>, LUATYPE> LuaStack::__CheckTable(const std::string& field_name)
+LuaRetPair<LUATYPE> LuaStack::__CheckTable(int table, const std::string& field_name) const
 {
     int type = lua_type(Context(), -1);
     if(CXXLUAInvalidType(type)) {
@@ -544,7 +541,7 @@ std::pair<std::optional<LuaErr>, LUATYPE> LuaStack::__CheckTable(const std::stri
     }
 
     Assert(lua_pushstring(Context(), field_name.c_str()));
-    lua_gettable(Context(), -2);
+    lua_gettable(Context(), table);
     auto value_type = GetType(-1);
     if(CXXLUAInvalidType(type)) {
         return {LuaErr(lua_tostring(Context(), -1), ERRCODE::VM_ErrLuaRuntime), value_type};
@@ -553,7 +550,7 @@ std::pair<std::optional<LuaErr>, LUATYPE> LuaStack::__CheckTable(const std::stri
     return {std::nullopt, value_type};
 }
 
-std::pair<std::optional<LuaErr>, LUATYPE> LuaStack::__CheckTable(int index_value)
+LuaRetPair<LUATYPE> LuaStack::__CheckTable(int table, int index_value) const
 {
     int type = lua_type(Context(), -1);
     if(CXXLUAInvalidType(type)) {
@@ -561,7 +558,7 @@ std::pair<std::optional<LuaErr>, LUATYPE> LuaStack::__CheckTable(int index_value
     }
 
     lua_pushinteger(Context(), index_value);
-    int err = lua_gettable(Context(), -2);
+    int err = lua_gettable(Context(), table);
     if(err != LUA_OK) {
         return {LuaErr(lua_tostring(Context(), -1), ERRCODE::VM_ErrLuaRuntime), (LUATYPE)type};
     }
