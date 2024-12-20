@@ -20,9 +20,6 @@ public:
         });
 
         InitClass("Player");
-        InitConstructor([] (lua_State* l) {
-            return cxx2lua_construct(l);
-        });
         return std::nullopt;
     }
 
@@ -48,14 +45,6 @@ public:
         assert(name != nullptr);
         m_name = name;
         return 0;
-    }
-
-    static Player* cxx2lua_construct(lua_State* l) {
-        auto id = lua_tointeger(l, -1);
-        auto name = lua_tostring(l, -2);
-        auto player = new Player;
-        player->InitArgs(id, name);
-        return player;
     }
 
     void InitArgs(int id, const char* name) {

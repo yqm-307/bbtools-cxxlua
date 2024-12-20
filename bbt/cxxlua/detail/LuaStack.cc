@@ -131,6 +131,49 @@ int LuaStack::SetMetatable(const std::string& name)
     return 1;
 }
 
+void* LuaStack::NewUserdata(size_t userdata_size)
+{
+    return lua_newuserdata(Context(), userdata_size);
+}
+
+LuaRetPair<LuaRefOpt> LuaStack::GetMetatable(const std::string& metatable_name)
+{
+    int type = luaL_getmetatable(Context(), metatable_name.c_str());
+    auto [err, ref] = GetRef(-1);
+
+    if (err != std::nullopt)
+        return {err, std::nullopt};
+
+    if (type == LUA_TNIL)
+        return {LuaErr{"[LuaStack::GetMetatable] can`t found metatable", ERRCODE::Comm_Failed}, std::nullopt};
+
+    return {std::nullopt, ref};
+}
+
+bool LuaStack::HasMetatable(int index)
+{
+    auto [err, ref] = GetMetafield(index, "this is invalid meta function!");
+    if (err != std::nullopt)
+        return false;
+
+    return (ref->GetType() != LUATYPE::LUATYPE_NIL);
+}
+
+LuaRetPair<LuaRefOpt> LuaStack::GetMetafield(int index, const std::string& field_name)
+{
+    LUATYPE type = (LUATYPE)luaL_getmetafield(Context(), index, field_name.c_str());    
+    return GetRef(-1);
+}
+
+void* LuaStack::GetUserdata(int index)
+{
+    return lua_touserdata(Context(), index);
+}
+
+void LuaStack::Error(const std::string& errinfo)
+{
+    luaL_error(Context(), errinfo.c_str());
+}
 
 LuaErrOpt LuaStack::Copy2Top(const LuaRef& ref)
 {

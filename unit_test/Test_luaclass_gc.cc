@@ -14,15 +14,10 @@ public:
     static std::optional<bbt::cxxlua::LuaErr> CXXLuaInit()
     {
         InitClass("GCObject");
-        InitConstructor([](lua_State* l){
-            return Object::cxx2lua_ctor(l);
-        });
         return std::nullopt;
     }
 
     static int GetCount() { return m_count; }
-private:
-    static Object* cxx2lua_ctor(lua_State* l) { return new Object(); }
 private:
     std::string m_mem1{"ASDHj)&UHJH!JLHSD*YU!HKJSA12379ujak"};
     static int m_count;
