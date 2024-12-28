@@ -32,6 +32,15 @@ bool LuaClass<CXXClassType>::InitClass(const std::string& classname)
     return true;
 }
 
+template<typename CXXClassType>
+bool LuaClass<CXXClassType>::InitConstructor(const ConstructFunction& constructor)
+{
+    assert(constructor);
+    m_construct_func = constructor;
+    return true;
+}
+
+
 
 template<typename CXXClassType>
 bool LuaClass<CXXClassType>::Register(std::shared_ptr<LuaStack>& stack)
@@ -50,6 +59,7 @@ bool LuaClass<CXXClassType>::Register(std::shared_ptr<LuaStack>& stack)
      * Class.new = cxx2lua_constructor
      * 
      * local Funcs = {
+     *      "new" = ...,    -- 必定存在
      *      ...,            -- 派生类补充
      * }
      * 
@@ -72,10 +82,10 @@ bool LuaClass<CXXClassType>::Register(std::shared_ptr<LuaStack>& stack)
     assert(stack->SetTbField("__metatable",   opts_index_table) == std::nullopt);
     assert(stack->SetTbField("__index",       opts_index_table) == std::nullopt);
     assert(stack->SetTbField("__tostring",    cxx2lua_to_string) == std::nullopt);
-    assert(stack->SetTbField("__gc",          lua2cxx_gc) == std::nullopt);
-    assert(stack->SetTbField("__close",       lua2cxx_close) == std::nullopt);
+    assert(stack->SetTbField("__gc",          cxx2lua_destructor) == std::nullopt);
 
     stack->Copy2Top(opts_index_table);
+    assert(stack->SetTbField("new",           cxx2lua_constructor) == std::nullopt);
     for (auto&& func : m_funcs) {
         auto l = stack->Context();
         lua_pushstring(l, func.first.c_str());
@@ -92,51 +102,21 @@ bool LuaClass<CXXClassType>::Register(std::shared_ptr<LuaStack>& stack)
 template<typename CXXClassType>
 int LuaClass<CXXClassType>::cxx2lua_call(lua_State* l)
 {
-    int ret = 0;
-
-    Ref** userdata = static_cast<Ref**>(luaL_checkudata(l, 1, m_class_name.c_str()));
+    CXXClassType** userdata = static_cast<CXXClassType**>(luaL_checkudata(l, 1, m_class_name.c_str()));
     luaL_argcheck(l, userdata != nullptr, 1, "invalid user data!");
     if (userdata == nullptr) {
         return 0;
     }
 
-    Ref* ref = static_cast<Ref*>(*userdata);
+    CXXClassType* obj = static_cast<CXXClassType*>(*userdata);
     void* upvalue = lua_touserdata(l, lua_upvalueindex(1));
     assert(upvalue != nullptr);
 
     typename FuncsMap::value_type* pair = static_cast<typename FuncsMap::value_type*>(upvalue);
-    std::shared_ptr<CXXClassType> cxxobj = ref->m_cxx_obj_weak_ref.lock();
-    if (cxxobj != nullptr)
-        ret = ((obj)->*(pair->second))(l);
-    else
-        luaL_error("cxx object is null!");
-
+    int ret = ((obj)->*(pair->second))(l);
     return ret;
 }
 
-template<typename CXXClassType>
-int LuaClass<CXXClassType>::lua2cxx_gc(std::shared_ptr<LuaStack>& stack)
-{
-    if (stack->HasMetatable(-1))
-        return 0;
-
-    auto** userdata = static_cast<Ref**>(stack->GetUserdata(-1));
-    Ref* obj = *userdata;
-    if (obj) delete obj;
-    return 0;
-}
-
-template<typename CXXClassType>
-int LuaClass<CXXClassType>::lua2cxx_close(std::shared_ptr<LuaStack>& stack)
-{
-    if (stack->HasMetatable(-1))
-        return 0;
-
-    auto** userdata = static_cast<Ref**>(stack->GetUserdata(-1));
-    Ref* ref = *userdata;
-    printf("xxxx close!!!!! %p\n", ref);
-    return 0;
-}
 
 template<typename CXXClassType>
 int LuaClass<CXXClassType>::cxx2lua_to_string(lua_State* l)
@@ -150,57 +130,62 @@ int LuaClass<CXXClassType>::cxx2lua_to_string(lua_State* l)
     return 1;
 }
 
-// template<typename CXXClassType>
-// int LuaClass<CXXClassType>::cxx2lua_constructor(lua_State* l)
-// {
-//     CXXClassType* obj = nullptr;
+template<typename CXXClassType>
+int LuaClass<CXXClassType>::cxx2lua_constructor(lua_State* l)
+{
+    CXXClassType* obj = nullptr;
 
-//     if(m_construct_func) {
-//         obj = m_construct_func(l);
-//     } else {
-//         obj = new CXXClassType();
-//     }
+    if(m_construct_func) {
+        obj = m_construct_func(l);
+    } else {
+        obj = new CXXClassType();
+    }
 
-//     /* 创建失败 */
-//     if (!obj) {
-//         lua_pushnil(l);
-//         return false;
-//     }
+    /* 创建失败 */
+    if (!obj) {
+        lua_pushnil(l);
+        return false;
+    }
 
-//     /**
-//      * 
-//      *  function new()
-//      *      mt = classtable
-//      *      local new_tb = userdata
-//      *      setmetatable(new_tb, classtable)
-//      * 
-//      *      (可选) new_tb[key] = value //TODO 构造阶段可以设置一些只读的值
-//      *      return new_tb
-//      *  end
-//      */
+    /**
+     * 
+     *  function new()
+     *      mt = classtable
+     *      local new_tb = userdata
+     *      setmetatable(new_tb, classtable)
+     * 
+     *      (可选) new_tb[key] = value //TODO 构造阶段可以设置一些只读的值
+     *      return new_tb
+     *  end
+     */
 
 
-    // CXXClassType** userdata = static_cast<CXXClassType**>(lua_newuserdata(l, sizeof(CXXClassType*)));    
-//     *userdata = obj;
+    CXXClassType** userdata = static_cast<CXXClassType**>(lua_newuserdata(l, sizeof(CXXClassType*)));    
+    *userdata = obj;
 
-//     int type = luaL_getmetatable(l, m_class_name.c_str());
-//     assert(type != LUATYPE::LUATYPE_NIL);
-//     lua_setmetatable(l, -2);
+    int type = luaL_getmetatable(l, m_class_name.c_str());
+    assert(type != LUATYPE::LUATYPE_NIL);
+    lua_setmetatable(l, -2);
 
-//     return 1;
-// }
+    return 1;
+}
 
 template<typename CXXClassType>
-void LuaClass<CXXClassType>::PushObj(std::shared_ptr<LuaStack>& stack, std::weak_ptr<CXXClassType> weak_ref)
+int LuaClass<CXXClassType>::cxx2lua_destructor(lua_State* l)
 {
-    auto ref = new Ref;
-    ref.m_cxx_obj_weak_ref = weak_ref;
+    if (luaL_getmetafield(l, 1, "do not trash")) {
+        lua_pushvalue(l, 1);
+        lua_gettable(l, -2);
+        if (!lua_isnil(l, -1))
+            return 0;
+    }
 
-    Ref** userdata = static_cast<Ref**>(stack->NewUserdata(sizeof(Ref*)));
-    *userdata = ref;
+    auto** userdata = static_cast<CXXClassType**>(lua_touserdata(l, 1));
+    auto* obj = *userdata;
+    if (obj)
+        delete obj;
 
-    auto [err, _] = stack->GetMetatable(m_class_name);
-    stack->SetMetatable(-2);
+    return 0;
 }
 
 } // namespace bbt::cxxlua::detail

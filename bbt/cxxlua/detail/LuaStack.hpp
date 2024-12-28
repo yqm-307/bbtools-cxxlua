@@ -60,14 +60,6 @@ public:
     int SetMetatable(int idx);
     int SetMetatable(const std::string& name);
 
-    void*                   NewUserdata(size_t userdata_size);
-    LuaRetPair<LuaRefOpt>   GetMetatable(const std::string& metatable_name);
-    bool                    HasMetatable(int index);
-    LuaRetPair<LuaRefOpt>   GetMetafield(int index, const std::string& field_name);
-    void*                   GetUserdata(int index);
-
-    void                    Error(const std::string& errinfo);
-
     /* 将idx处元素拷贝，并压入栈顶 */
     LuaErrOpt Copy2Top(const LuaRef& ref);
 
