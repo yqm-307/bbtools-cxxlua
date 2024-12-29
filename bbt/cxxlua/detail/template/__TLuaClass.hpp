@@ -25,6 +25,20 @@ bool LuaClass<CXXClassType>::InitFuncs(std::initializer_list<FuncsMapEntry> list
 }
 
 template<typename CXXClassType>
+bool LuaClass<CXXClassType>::InitField(std::initializer_list<FuncsMapEntry> list)
+{
+    for (auto&& pair : list) {
+        auto [it, succ] = m_readonly_field_funcs.insert(pair);
+        if (!succ) {
+            m_funcs.clear();
+            return false;
+        }
+    }
+
+    return true;
+}
+
+template<typename CXXClassType>
 bool LuaClass<CXXClassType>::InitClass(const std::string& classname)
 {
     assert(!classname.empty());
@@ -45,58 +59,27 @@ bool LuaClass<CXXClassType>::InitConstructor(const ConstructFunction& constructo
 template<typename CXXClassType>
 bool LuaClass<CXXClassType>::Register(std::shared_ptr<LuaStack>& stack)
 {
-    /**
-     * 下面的操作类似于lua中的（效果类似）：
-     * 
-     * Class = {}   -- 全局表名：classname
-     * local mt = {
-     *      "__metatable" = Class,
-     *      "__index"     = Class,
-     *      "__tostring"  = cxx2lua_to_string,
-     *      "__gc"        = cxx2lua_destructor,
-     * }
-     * 
-     * Class.new = cxx2lua_constructor
-     * 
-     * local Funcs = {
-     *      "new" = ...,    -- 必定存在
-     *      ...,            -- 派生类补充
-     * }
-     * 
-     * for szName, fnMemFunc in pairs(Funcs) do
-     *      Class[szName] = fnMemFunc
-     * end
-     */
-
-    stack->NewLuaTable();
-    auto opts_index_table = stack->GetTop();
-
     stack->NewMetatable(m_class_name.c_str());
     auto mt_table_ref = stack->GetTop();
 
-    if (stack->SetGlobalValueByIndex(m_class_name, opts_index_table)) {
-        return false;
-    }
-
-    stack->Copy2Top(mt_table_ref);
-    assert(stack->SetTbField("__metatable",   opts_index_table) == std::nullopt);
-    assert(stack->SetTbField("__index",       opts_index_table) == std::nullopt);
+    assert(stack->SetTbField("__index",       metatable_index) == std::nullopt);
     assert(stack->SetTbField("__tostring",    cxx2lua_to_string) == std::nullopt);
     assert(stack->SetTbField("__gc",          cxx2lua_destructor) == std::nullopt);
-
-    stack->Copy2Top(opts_index_table);
-    assert(stack->SetTbField("new",           cxx2lua_constructor) == std::nullopt);
-    for (auto&& func : m_funcs) {
-        auto l = stack->Context();
-        lua_pushstring(l, func.first.c_str());
-        lua_pushlightuserdata(l, (void*)(&func));
-        lua_pushcclosure(l, cxx2lua_call, 1);
-        lua_settable(l, opts_index_table.GetIndex());
-    }
 
     stack->Pop(-2);
 
     return true;
+}
+
+template<typename CXXClassType>
+typename LuaClass<CXXClassType>::Callable LuaClass<CXXClassType>::GenCallable(MemberFunc f, const std::string& name, CallType type)
+{
+    Callable obj;
+    obj.func = f;
+    obj.funcname = name;
+    obj.type = type;
+
+    return obj;
 }
 
 template<typename CXXClassType>
@@ -112,9 +95,54 @@ int LuaClass<CXXClassType>::cxx2lua_call(lua_State* l)
     void* upvalue = lua_touserdata(l, lua_upvalueindex(1));
     assert(upvalue != nullptr);
 
-    typename FuncsMap::value_type* pair = static_cast<typename FuncsMap::value_type*>(upvalue);
-    int ret = ((obj)->*(pair->second))(l);
+    Callable* callobj = static_cast<Callable*>(upvalue);
+    int ret = ((obj)->*(callobj->func))(l);
     return ret;
+}
+
+template<typename CXXClassType>
+int LuaClass<CXXClassType>::metatable_index(lua_State* l)
+{
+    const char* key = lua_tostring(l, -2);
+    assert(key != nullptr);
+    Callable* callable = GetCallableByName(key);
+    if (!callable) {
+        lua_pushnil(l);
+        return 1;
+    }
+
+    switch (callable->type)
+    {
+    // 如果是访问函数，返回函数
+    case emCallType_MemberFunc:
+        lua_pushlightuserdata(l, (void*)(callable));
+        lua_pushcclosure(l, cxx2lua_call, 1);
+        break;
+    // 如果是访问变量，执行函数
+    case emCallType_ReadonlyFunc:
+        cxx2lua_call(l);
+        break;
+    default:
+        lua_pushnil(l);
+        break;
+    }
+
+    return 1;
+
+}
+
+template<typename CXXClassType>
+typename LuaClass<CXXClassType>::Callable* LuaClass<CXXClassType>::GetCallableByName(const std::string& key)
+{
+    auto member_func_itor = m_funcs.find(key);
+    if (member_func_itor != m_funcs.end())
+        return &(member_func_itor->second);
+    
+    auto field_func_itor = m_readonly_field_funcs.find(key);
+    if (field_func_itor != m_funcs.end())
+        return &(field_func_itor->second);
+
+    return nullptr;
 }
 
 
