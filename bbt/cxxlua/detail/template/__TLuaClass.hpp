@@ -83,6 +83,24 @@ typename LuaClass<CXXClassType>::Callable LuaClass<CXXClassType>::GenCallable(Me
 }
 
 template<typename CXXClassType>
+bool LuaClass<CXXClassType>::PushMe(lua_State* l)
+{
+    if (!this) {
+        lua_pushnil(l);
+        return false;
+    }
+
+    CXXClassType** userdata = static_cast<CXXClassType**>(lua_newuserdata(l, sizeof(CXXClassType**)));
+    *userdata = dynamic_cast<CXXClassType*>(this);
+
+    int type = luaL_getmetatable(l, m_class_name.c_str());
+    assert(type != LUATYPE::LUATYPE_NIL);
+    lua_setmetatable(l, -2);
+
+    return true;
+}
+
+template<typename CXXClassType>
 int LuaClass<CXXClassType>::cxx2lua_call(lua_State* l)
 {
     CXXClassType** userdata = static_cast<CXXClassType**>(luaL_checkudata(l, 1, m_class_name.c_str()));
@@ -103,7 +121,7 @@ int LuaClass<CXXClassType>::cxx2lua_call(lua_State* l)
 template<typename CXXClassType>
 int LuaClass<CXXClassType>::metatable_index(lua_State* l)
 {
-    const char* key = lua_tostring(l, -2);
+    const char* key = lua_tostring(l, -1);
     assert(key != nullptr);
     Callable* callable = GetCallableByName(key);
     if (!callable) {
@@ -208,10 +226,10 @@ int LuaClass<CXXClassType>::cxx2lua_destructor(lua_State* l)
             return 0;
     }
 
-    auto** userdata = static_cast<CXXClassType**>(lua_touserdata(l, 1));
-    auto* obj = *userdata;
-    if (obj)
-        delete obj;
+    // auto** userdata = static_cast<CXXClassType**>(lua_touserdata(l, 1));
+    // auto* obj = *userdata;
+    // if (obj)
+    //     delete obj;
 
     return 0;
 }

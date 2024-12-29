@@ -40,6 +40,7 @@ public:
     /* 注册函数 */
     static bool Register(std::shared_ptr<LuaStack>& stack);
     static Callable GenCallable(MemberFunc f, const std::string& name, CallType type);
+    virtual bool PushMe(lua_State* l) final;
 
 protected: /* 给派生类用来注册函数（lua绑定类需要关注） */
     /* 添加一些成员函数 */
