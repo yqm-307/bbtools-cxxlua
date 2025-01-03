@@ -15,14 +15,12 @@ public:
     {
         InitClass("GCObject");
         InitFuncs({
-            {"GetMem1", GenCallable(&Object::cxx2lua_GetMem1, "GetMem1", emCallType_MemberFunc)},
-            {"SetMem1", GenCallable(&Object::cxx2lua_SetMem1, "SetMem1", emCallType_MemberFunc)},
+            {"GetMem1", GenCallable(&Object::cxx2lua_GetMem1, "GetMem1", bbt::cxxlua::emCallType_MemberFunc)},
+            {"SetMem1", GenCallable(&Object::cxx2lua_SetMem1, "SetMem1", bbt::cxxlua::emCallType_MemberFunc)},
         });
         InitField({
-            {"mem2", GenCallable(&Object::GetMem2, "mem2", emCallType_ReadonlyFunc)},
-        });
-        InitConstructor([](lua_State* l){
-            return Object::cxx2lua_ctor(l);
+            {"mem1", GenCallable(&Object::cxx2lua_GetMem1, "mem1", bbt::cxxlua::emCallType_ReadonlyFunc)},
+            {"mem2", GenCallable(&Object::GetMem2, "mem2", bbt::cxxlua::emCallType_ReadonlyFunc)},
         });
         return std::nullopt;
     }
@@ -108,12 +106,14 @@ function Main()
     print(type(obj))
     obj:SetMem1("hello world")
     print(obj:GetMem1())
+    obj:SetMem1("i change set mem1 succ!")
+    print(obj.mem1)
     print(obj.mem2)
     ReleaseAObj(obj)
 end
 )";
 
-BOOST_AUTO_TEST_CASE(t_gc)
+BOOST_AUTO_TEST_CASE(t_regist_class)
 {
     bbt::cxxlua::LuaVM vm;
 
@@ -137,6 +137,16 @@ BOOST_AUTO_TEST_CASE(t_gc)
     }
 
     BOOST_ASSERT_MSG(Object::GetCount() == 0, "lua class has memory leak!");
+}
+
+BOOST_AUTO_TEST_CASE(t_regist_class_with_memberfunc)
+{
+
+}
+
+BOOST_AUTO_TEST_CASE(t_regist_class_with_readonly_value)
+{
+
 }
 
 BOOST_AUTO_TEST_SUITE_END()

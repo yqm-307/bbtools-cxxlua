@@ -47,6 +47,11 @@ enum LUATYPE
     Other,
 };
 
+enum CallType {
+    emCallType_MemberFunc,
+    emCallType_ReadonlyFunc,
+};
+
 namespace detail
 {
 

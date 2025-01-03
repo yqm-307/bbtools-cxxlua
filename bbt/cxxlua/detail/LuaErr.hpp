@@ -27,6 +27,9 @@ enum ERRCODE
 
     // lua ref
     LuaRef_InvaildRef  = 20, // 非法引用
+
+    // lua class mgr 
+    ClassMgr_Error      = 21,
 };
 
 namespace detail

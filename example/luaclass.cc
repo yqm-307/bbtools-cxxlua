@@ -13,16 +13,13 @@ public:
 
     static std::optional<bbt::cxxlua::LuaErr> CXXLuaInit() {
         InitFuncs({
-            {"GetId", GenCallable(&Player::cxx2lua_GetId, "id", emCallType_ReadonlyFunc)},
-            {"SetId", GenCallable(&Player::cxx2lua_SetId, "SetId", emCallType_MemberFunc)},
-            {"GetName", GenCallable(&Player::cxx2lua_GetName, "GetName", emCallType_MemberFunc)},
-            {"SetName", GenCallable(&Player::cxx2lua_SetName, "SetName", emCallType_MemberFunc)},
+            {"GetId", GenCallable(&Player::cxx2lua_GetId, "id", bbt::cxxlua::emCallType_ReadonlyFunc)},
+            {"SetId", GenCallable(&Player::cxx2lua_SetId, "SetId", bbt::cxxlua::emCallType_MemberFunc)},
+            {"GetName", GenCallable(&Player::cxx2lua_GetName, "GetName", bbt::cxxlua::emCallType_MemberFunc)},
+            {"SetName", GenCallable(&Player::cxx2lua_SetName, "SetName", bbt::cxxlua::emCallType_MemberFunc)},
         });
 
         InitClass("Player");
-        InitConstructor([] (lua_State* l) {
-            return cxx2lua_construct(l);
-        });
         return std::nullopt;
     }
 
