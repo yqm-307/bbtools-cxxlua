@@ -46,10 +46,13 @@ public:
 
     static int LuaReleaseObject(lua_State* l)
     {
+        int type = lua_type(l, -1);
+        assert(type == LUA_TNUMBER);
         int id = lua_tointeger(l, -1);
         auto it = objmap.find(id);
         assert(it != objmap.end());
         objmap[id] = nullptr;
+        objmap.erase(it);
         return 0;
     }
 
@@ -77,11 +80,13 @@ for i=0, 100 do
 end
 
 for _, id in pairs(tbIdList) do
-    ReleaseObject(i)
+    -- print("release before obj id=", id, tbCXXObjList[id])
+    ReleaseObject(id)
+    -- print("release after obj id=", id, tbCXXObjList[id])
 end
 
 print(type(tbCXXObjList[1]), tbCXXObjList[1])
-tbCXXObjList[1]:f()
+-- tbCXXObjList[1]:f()
 
 )";
 

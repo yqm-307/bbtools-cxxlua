@@ -171,9 +171,10 @@ template<typename CXXClassType>
 int LuaClass<CXXClassType>::cxx2lua_to_string(lua_State* l)
 {
     char buff[128];
-    CXXClassType** userdata = static_cast<CXXClassType**>(luaL_checkudata(l, 1, m_class_name.c_str()));
-    CXXClassType* obj = *userdata;
-    sprintf(buff, "%p", (void*)obj);
+    UDataRef** userdata = static_cast<UDataRef**>(luaL_checkudata(l, 1, m_class_name.c_str()));
+    UDataRef* obj = *userdata;
+    std::shared_ptr<CXXClassType> cxxobj = obj->lua_weak_ref_cxxobj.lock(); 
+    sprintf(buff, "%p", cxxobj.get());
     lua_pushfstring(l, "%s (%s)", m_class_name.c_str(), buff);
 
     return 1;
