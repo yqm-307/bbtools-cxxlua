@@ -5,7 +5,8 @@
 #include <bbt/cxxlua/CXXLua.hpp>
 
 class Object:
-    public bbt::cxxlua::LuaClass<Object>
+    public bbt::cxxlua::LuaClass<Object>,
+    public std::enable_shared_from_this<Object>
 {
 public:
     Object()  { m_count++; }
@@ -67,7 +68,7 @@ public:
         m_objects.erase(id);
     }
 
-    Object& GetObject(int id)
+    Object& GetGObject(int id)
     {
         return m_objects[id];
     }
@@ -80,19 +81,25 @@ private:
     std::map<int, Object> m_objects;
 };
 
-int GetObject(lua_State* l)
+std::shared_ptr<Object> g_object = nullptr;
+
+int GetGObject(lua_State* l)
 {
-    auto obj = new Object();
-    return obj->PushMe(l);
+    if (!g_object)
+        return 0;
+
+    return g_object->PushMe(l, g_object->weak_from_this());
 }
 
-int ReleaseObject(lua_State* l)
+int NewObject(lua_State* l)
 {
-    int type = lua_type(l, 1);
-    BOOST_ASSERT(lua_type(l, -1) == LUA_TUSERDATA);
-    Object* obj = *static_cast<Object**>(lua_touserdata(l, 1));
-    
-    delete obj;
+    g_object = std::make_shared<Object>();
+    return 0;
+}
+
+int DelObject(lua_State* l)
+{
+    g_object = nullptr;
     return 0;
 }
 
@@ -102,14 +109,11 @@ BOOST_AUTO_TEST_SUITE(CXX_Regist_LuaClass_GC)
 
 std::string luascript_t_gc = R"(
 function Main()
-    local obj = GetAObj()
-    print(type(obj))
-    obj:SetMem1("hello world")
-    print(obj:GetMem1())
-    obj:SetMem1("i change set mem1 succ!")
-    print(obj.mem1)
-    print(obj.mem2)
-    ReleaseAObj(obj)
+    NewGObj()
+    local obj = GetGObj()
+    DelGObj()
+    obj = GetGObj()
+    print(obj == nil)
 end
 )";
 
@@ -118,8 +122,9 @@ BOOST_AUTO_TEST_CASE(t_regist_class)
     bbt::cxxlua::LuaVM vm;
 
     BOOST_ASSERT(vm.LoadLuaLibrary() == std::nullopt);
-    BOOST_ASSERT(vm.SetGlobalValue("GetAObj", GetObject) == std::nullopt);
-    BOOST_ASSERT(vm.SetGlobalValue("ReleaseAObj", ReleaseObject) == std::nullopt);
+    BOOST_ASSERT(vm.SetGlobalValue("GetGObj", GetGObject) == std::nullopt);
+    BOOST_ASSERT(vm.SetGlobalValue("NewGObj", NewObject) == std::nullopt);
+    BOOST_ASSERT(vm.SetGlobalValue("DelGObj", DelObject) == std::nullopt);
 
     auto err1 = vm.DoScript(luascript_t_gc);
     if (err1 != std::nullopt) {
@@ -139,9 +144,44 @@ BOOST_AUTO_TEST_CASE(t_regist_class)
     BOOST_ASSERT_MSG(Object::GetCount() == 0, "lua class has memory leak!");
 }
 
+std::string luascript__memberfunc = R"(
+function Main()
+    NewGObj()
+    local obj = GetAObj()
+    print(type(obj))
+    obj:SetMem1("hello world")
+    print(obj:GetMem1())
+    obj:SetMem1("i change set mem1 succ!")
+    DelObj()
+end
+)";
+
 BOOST_AUTO_TEST_CASE(t_regist_class_with_memberfunc)
 {
+    bbt::cxxlua::LuaVM vm;
+    g_object = std::make_shared<Object>();
+    BOOST_ASSERT(vm.LoadLuaLibrary() == std::nullopt);
+    BOOST_ASSERT(vm.SetGlobalValue("GetGObj", GetGObject) == std::nullopt);
+    BOOST_ASSERT(vm.SetGlobalValue("NewGObj", NewObject) == std::nullopt);
+    BOOST_ASSERT(vm.SetGlobalValue("DelGObj", DelObject) == std::nullopt);
 
+    auto err1 = vm.DoScript(luascript_t_gc);
+    if (err1 != std::nullopt) {
+        BOOST_FAIL(err1.value().What());
+    }
+
+    auto err2 = vm.RegistClass<Object>();
+    if (err2 != std::nullopt) {
+        BOOST_FAIL(err2.value().What());
+    }
+
+    auto err3 = vm.CallLuaFunction("Main", 0, nullptr);
+    if (err3 != std::nullopt) {
+        BOOST_FAIL(err3.value().What());
+    }
+
+    g_object = nullptr;
+    BOOST_ASSERT_MSG(Object::GetCount() == 0, "lua class has memory leak!");
 }
 
 BOOST_AUTO_TEST_CASE(t_regist_class_with_readonly_value)

@@ -26,3 +26,7 @@ add_test(NAME Test_stack COMMAND Test_stack)
 add_executable(Test_luatype Test_luatype.cc)
 target_link_libraries(Test_luatype ${MY_COMM_LIB})
 add_test(NAME Test_luatype COMMAND Test_luatype)
+
+add_executable(Test_luaclass_manager Test_luaclass_manager.cc)
+target_link_libraries(Test_luaclass_manager ${MY_COMM_LIB})
+add_test(NAME Test_luaclass_manager COMMAND Test_luaclass_manager)

@@ -12,9 +12,20 @@ namespace bbt::cxxlua::detail
  *  ps：此类不会被创建对象
  */
 template<typename CXXClassType /*派生类类型*/>
-class LuaClass : LuaMeta
+class LuaClass:
+    public LuaMeta
 {
 public:
+    typedef std::weak_ptr<CXXClassType> ClassWeakPtr;
+    struct UDataRef {
+        /**
+         * UDataRef是Lua Userdata对象，Lua中UData实际上
+         * 通过弱引用来引用到c++对象，这样当c++对象释放时
+         * 也不会导致访问到非法地址
+         */
+        ClassWeakPtr lua_weak_ref_cxxobj;
+    };
+
     typedef ClassMgr::Callable Callable;
     typedef std::unordered_map<std::string, ClassMgr::Callable> FuncsMap;
     typedef typename FuncsMap::value_type FuncsMapEntry;
@@ -26,7 +37,7 @@ public:
     /* 注册函数 */
     static bool Register(std::shared_ptr<LuaStack>& stack);
     static Callable GenCallable(LuaClassFunc f, const std::string& name, CallType type);
-    virtual bool PushMe(lua_State* l) final;
+    virtual bool PushMe(lua_State* l, ClassWeakPtr weak_this) final;
 
 protected: /* 给派生类用来注册函数（lua绑定类需要关注） */
     /* 添加一些成员函数 */
@@ -53,6 +64,9 @@ private: /* 自动生成的函数（使用时无需关心） */
     static LuaRetPair<Callable*> GetCallableByName(const std::string& key);
     static int DoCallable(lua_State* l, Callable* cb);
     static int DoCCallable(lua_State* l, CXXClassType* object, Callable* cb);
+
+    static UDataRef*    CreateRef(ClassWeakPtr weak);
+    static void         ReleaseRef(UDataRef* ref);
 private:
     /**
      * 特殊函数:

@@ -57,15 +57,15 @@ typename LuaClass<CXXClassType>::Callable LuaClass<CXXClassType>::GenCallable(Lu
 }
 
 template<typename CXXClassType>
-bool LuaClass<CXXClassType>::PushMe(lua_State* l)
+bool LuaClass<CXXClassType>::PushMe(lua_State* l, ClassWeakPtr weak_this)
 {
     if (!this) {
         lua_pushnil(l);
         return false;
     }
 
-    CXXClassType** userdata = static_cast<CXXClassType**>(lua_newuserdata(l, sizeof(CXXClassType**)));
-    *userdata = dynamic_cast<CXXClassType*>(this);
+    UDataRef** userdata = static_cast<UDataRef**>(lua_newuserdata(l, sizeof(UDataRef**)));
+    *userdata = CreateRef(weak_this);
 
     int type = luaL_getmetatable(l, m_class_name.c_str());
     assert(type != LUATYPE::LUATYPE_NIL);
@@ -77,18 +77,27 @@ bool LuaClass<CXXClassType>::PushMe(lua_State* l)
 template<typename CXXClassType>
 int LuaClass<CXXClassType>::cxx2lua_call(lua_State* l)
 {
-    CXXClassType** userdata = static_cast<CXXClassType**>(luaL_checkudata(l, 1, m_class_name.c_str()));
+    // 获取 userdata
+    UDataRef** userdata = static_cast<UDataRef**>(luaL_checkudata(l, 1, m_class_name.c_str()));
     luaL_argcheck(l, userdata != nullptr, 1, "invalid user data!");
     if (userdata == nullptr) {
         return 0;
     }
 
-    CXXClassType* obj = static_cast<CXXClassType*>(*userdata);
+    // 检测userdata引用的c++对象是否还存在
+    UDataRef* obj = static_cast<UDataRef*>(*userdata);
+    ClassWeakPtr ptr = obj->lua_weak_ref_cxxobj;
+    auto obj_sptr = obj->lua_weak_ref_cxxobj.lock();
+    if (!obj_sptr) {
+        luaL_error(l, "c++ object is null! class=%s", m_class_name.c_str());
+        return 0;
+    }
+
     void* upvalue = lua_touserdata(l, lua_upvalueindex(1));
     assert(upvalue != nullptr);
 
     Callable* callobj = static_cast<Callable*>(upvalue);
-    return DoCCallable(l, obj, callobj);
+    return DoCCallable(l, obj_sptr.get(), callobj);
 }
 
 template<typename CXXClassType>
@@ -135,12 +144,20 @@ LuaRetPair<ClassMgr::Callable*> LuaClass<CXXClassType>::GetCallableByName(const 
 template<typename CXXClassType>
 int LuaClass<CXXClassType>::DoCallable(lua_State* l, Callable* cb)
 {
-    CXXClassType** userdata = static_cast<CXXClassType**>(luaL_checkudata(l, 1, m_class_name.c_str()));
+    UDataRef** userdata = static_cast<UDataRef**>(luaL_checkudata(l, 1, m_class_name.c_str()));
     luaL_argcheck(l, userdata != nullptr, 1, "invalid userdata!");
     if (userdata == nullptr)
         return 0;
     
-    return DoCCallable(l, *userdata, cb);
+    UDataRef* obj = static_cast<UDataRef*>(*userdata);
+    ClassWeakPtr ptr = obj->lua_weak_ref_cxxobj;
+    auto obj_sptr = obj->lua_weak_ref_cxxobj.lock();
+    if (!obj_sptr) {
+        luaL_error(l, "c++ object is null! class=%s", m_class_name.c_str());
+        return 0;
+    }
+
+    return DoCCallable(l, obj_sptr.get(), cb);
 }
 
 template<typename CXXClassType>
@@ -172,12 +189,26 @@ int LuaClass<CXXClassType>::cxx2lua_destructor(lua_State* l)
             return 0;
     }
 
-    // auto** userdata = static_cast<CXXClassType**>(lua_touserdata(l, 1));
-    // auto* obj = *userdata;
-    // if (obj)
-    //     delete obj;
+    UDataRef** userdata = static_cast<UDataRef**>(lua_touserdata(l, 1));
+    if (*userdata) ReleaseRef(*userdata);
 
     return 0;
+}
+
+template<typename CXXClassType>
+typename LuaClass<CXXClassType>::UDataRef* LuaClass<CXXClassType>::CreateRef(ClassWeakPtr weak)
+{
+    AssertWithInfo(weak.lock() != nullptr, "object not a shared_ptr!");
+    UDataRef* ref = new UDataRef();
+    ref->lua_weak_ref_cxxobj = weak;
+    return ref;
+}
+
+template<typename CXXClassType>
+void LuaClass<CXXClassType>::ReleaseRef(UDataRef* ref)
+{
+    if (ref != nullptr)
+        delete ref;
 }
 
 } // namespace bbt::cxxlua::detail
