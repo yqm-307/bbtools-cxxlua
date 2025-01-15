@@ -12,6 +12,8 @@ file(GLOB_RECURSE SRCS
     ${PROJECT_SOURCE_DIR}/bbt/*.cc
 )
 
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
+
 add_library(bbt_cxxlua STATIC ${SRCS})
 target_link_libraries(bbt_cxxlua
     ybbt

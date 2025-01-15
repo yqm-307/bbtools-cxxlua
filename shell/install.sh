@@ -6,8 +6,4 @@ libpath="/usr/local/lib"
 cd ..
 shell/bbt_copy_header_dir.sh $installpath bbt cxxlua
 
-# sudo cp build/lib/libbbt_cxxlua.so /usr/local/lib/
-
-# if [ ! -d "build" ];then
-#     mkdir build
-# fi
+sudo cp build/lib/libbbt_cxxlua.a /usr/local/lib/
