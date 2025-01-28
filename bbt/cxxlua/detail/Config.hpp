@@ -28,7 +28,7 @@ namespace bbt::cxxlua
 {
 
 struct Nil {};
-static Nil nil;
+BBTATTR_COMM_Unused static Nil nil;
 
 enum LUATYPE
 {

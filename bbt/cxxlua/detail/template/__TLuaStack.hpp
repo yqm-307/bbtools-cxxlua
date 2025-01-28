@@ -125,8 +125,6 @@ std::optional<LuaErr> LuaStack::_GetByKey4Table(LuaValue& value, TKey key, Args 
 
     // 压入key，获取table值
     Push(key);
-    LUATYPE type = (LUATYPE)lua_gettable(Context(), -2);
-
     // 取出再尝试获取table值
     auto err = _GetByKey4Table(value, args...);
     Pop(1);
@@ -141,9 +139,6 @@ std::optional<LuaErr> LuaStack::_GetByKey4Table(LuaValue& value, TKeyValue key)
         return LuaErr("top value not lua table!", ERRCODE::Comm_Failed);
     
     Push(key);
-
-    LUATYPE type = (LUATYPE)lua_gettable(Context(), -2);
-
     return Pop(value);
 }
 

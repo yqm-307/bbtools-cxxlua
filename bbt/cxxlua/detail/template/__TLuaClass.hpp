@@ -59,11 +59,6 @@ typename LuaClass<CXXClassType>::Callable LuaClass<CXXClassType>::GenCallable(Lu
 template<typename CXXClassType>
 bool LuaClass<CXXClassType>::PushMe(lua_State* l, ClassWeakPtr weak_this)
 {
-    if (!this) {
-        lua_pushnil(l);
-        return false;
-    }
-
     UDataRef** userdata = static_cast<UDataRef**>(lua_newuserdata(l, sizeof(UDataRef**)));
     *userdata = CreateRef(weak_this);
 
@@ -163,7 +158,6 @@ int LuaClass<CXXClassType>::DoCallable(lua_State* l, Callable* cb)
 template<typename CXXClassType>
 int LuaClass<CXXClassType>::DoCCallable(lua_State* l, CXXClassType* object, Callable* cb)
 {
-    auto fnmem = static_cast<MemberFunc>(cb->func);
     return ((object)->*(cb->func))(l);
 }
 

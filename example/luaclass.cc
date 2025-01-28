@@ -25,7 +25,6 @@ public:
 
 public:
     int cxx2lua_GetId(lua_State* l) {
-        auto a = m_id;
         lua_pushinteger(l, m_id);
         return 1;
     }

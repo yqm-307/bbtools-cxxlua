@@ -78,8 +78,6 @@ LuaErrOpt ClassMgr::RegistClassFunc(const std::string& classname, std::initializ
 
 LuaRetPair<ClassMgr::Callable*> ClassMgr::GetCallable(const std::string& classname, const std::string& key)
 {
-    MetaInfo* metainfo = nullptr;
-
     if (!IsRegistered(classname))
         return {LuaErr{"not regist class=" + classname, ERRCODE::ClassMgr_Error}, nullptr};
 
