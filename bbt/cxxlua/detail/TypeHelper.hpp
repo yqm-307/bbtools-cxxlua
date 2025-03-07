@@ -1,5 +1,5 @@
 #pragma once
-#include <bbt/base/type/type_traits.hpp>
+#include <bbt/core/type/type_traits.hpp>
 #include <bbt/cxxlua/detail/Config.hpp>
 
 namespace bbt::cxxlua::detail

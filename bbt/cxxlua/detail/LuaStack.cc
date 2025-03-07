@@ -66,10 +66,10 @@ std::optional<LuaErr> LuaStack::LoadFile(const std::string& file_path)
 
 std::optional<LuaErr> LuaStack::LoadFolder(const std::string& folder_path)
 {
-    if(folder_path.empty() || !file::Exist(folder_path))
+    if(folder_path.empty() || !core::fs::Exist(folder_path))
         return LuaErr("", ERRCODE::VM_ErrParams);
 
-    auto file_list = file::GetFileByFolder(folder_path, false, {"lua"});
+    auto file_list = core::fs::GetFileByFolder(folder_path, false, {"lua"});
 
     for (auto &&filename : file_list)
     {

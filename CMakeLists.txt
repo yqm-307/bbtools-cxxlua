@@ -19,7 +19,7 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 
 add_library(bbt_cxxlua STATIC ${SRCS})
 target_link_libraries(bbt_cxxlua PRIVATE
-    ybbt
+    bbt_core
     lua
 )
 

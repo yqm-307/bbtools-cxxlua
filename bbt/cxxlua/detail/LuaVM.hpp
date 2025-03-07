@@ -1,14 +1,14 @@
 #pragma once
 #include <vector>
-#include <bbt/base/templateutil/Noncopyable.hpp>
 #include <bbt/cxxlua/detail/LuaErr.hpp>
+#include <boost/noncopyable.hpp>
 
 
 namespace bbt::cxxlua::detail
 {
 
 class LuaVM:
-    bbt::templateutil::noncopyable
+    boost::noncopyable
 {
 public:
     LuaVM();

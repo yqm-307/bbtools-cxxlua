@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include <bbt/base/file/FileHelper.hpp>
+#include <bbt/core/file/FileHelper.hpp>
 #include <bbt/cxxlua/detail/impl/LuaVMImpl.hpp>
 
 namespace bbt::cxxlua::detail
