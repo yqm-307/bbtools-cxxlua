@@ -1,6 +1,6 @@
 #pragma once
-#include <bbt/core/type/type_traits.hpp>
 #include <bbt/cxxlua/detail/Config.hpp>
+#include <bbt/core/reflex/TypeHelper.hpp>
 
 namespace bbt::cxxlua::detail
 {
@@ -8,7 +8,7 @@ namespace bbt::cxxlua::detail
 template<typename T, typename Contrast>
 constexpr bool RemoveCVRefAndIsSame()
 {
-    return std::is_same_v<bbt::type::remove_cvref_t<T>, Contrast>;
+    return std::is_same_v<bbt::core::reflex::remove_cvref_t<T>, Contrast>;
 } 
 
 /* 检测类型T是否为合法的 cxx 传送 到 lua 的类型 */
@@ -16,14 +16,14 @@ template<typename T>
 constexpr bool CheckIsCanTransfromToLuaType()
 {
     if constexpr(
-        std::is_same_v<bbt::type::remove_cvref_t<T>, int> ||
-        std::is_same_v<bbt::type::remove_cvref_t<T>, std::string> ||
-        std::is_same_v<bbt::type::remove_cvref_t<T>, double> ||
-        std::is_same_v<bbt::type::remove_cvref_t<T>, char*> ||
-        std::is_same_v<bbt::type::remove_cvref_t<T>, const char*> ||
-        std::is_same_v<bbt::type::remove_cvref_t<T>, bbt::cxxlua::detail::LuaRef> ||
-        std::is_same_v<bbt::type::remove_cvref_t<T>, lua_CFunction> ||
-        std::is_same_v<bbt::type::remove_cvref_t<T>, bbt::cxxlua::Nil>
+        std::is_same_v<bbt::core::reflex::remove_cvref_t<T>, int> ||
+        std::is_same_v<bbt::core::reflex::remove_cvref_t<T>, std::string> ||
+        std::is_same_v<bbt::core::reflex::remove_cvref_t<T>, double> ||
+        std::is_same_v<bbt::core::reflex::remove_cvref_t<T>, char*> ||
+        std::is_same_v<bbt::core::reflex::remove_cvref_t<T>, const char*> ||
+        std::is_same_v<bbt::core::reflex::remove_cvref_t<T>, bbt::cxxlua::detail::LuaRef> ||
+        std::is_same_v<bbt::core::reflex::remove_cvref_t<T>, lua_CFunction> ||
+        std::is_same_v<bbt::core::reflex::remove_cvref_t<T>, bbt::cxxlua::Nil>
     ) {
         return true;
     } else {
@@ -68,7 +68,7 @@ struct __ToLuaType<bbt::cxxlua::Nil>
 { static constexpr LUATYPE type = LUATYPE::LUATYPE_NIL; };
 
 template<typename T>
-inline constexpr LUATYPE luatype_v = __ToLuaType<bbt::type::remove_cvref_t<T>>::type;
+inline constexpr LUATYPE luatype_v = __ToLuaType<bbt::core::reflex::remove_cvref_t<T>>::type;
 
 inline void DbgLuaStack(lua_State* l) {
     int type;

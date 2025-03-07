@@ -10,7 +10,7 @@
 #include <string>
 
 #include <bbt/core/Attribute.hpp>
-#include <bbt/core/macroutil/Assert.hpp>
+#include <bbt/core/util/Assert.hpp>
 
 // 对外 api flag
 #define CXXLUA_API BBTATTR_FUNC_RetVal
